@@ -19,7 +19,7 @@ stock = []
 for item in results:
     stock.append(item.get('alt', '')) # add items to stock list
 
-# print(stock) 
+print(stock) 
 
 # Get item from user
 user_item = input("Enter the item you would like to buy: ").title()
