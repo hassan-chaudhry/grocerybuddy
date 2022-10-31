@@ -1,0 +1,98 @@
+#:kivy 2.1.0
+WindowManager:
+    MainWidget:
+    SecondWindow:
+    ThirdWindow:
+
+<MainWidget>:
+    name: "main"
+
+    GridLayout:
+        cols: 1
+        rows: 2
+        Label:
+            id: firstlabel
+            text: 'Welcome to Grocery Buddy!'
+            color: "blue"
+            font_size: self.width/20
+            background_color: "white"
+        Button:
+            id: enter
+            text: 'Enter'
+            background_color: "white"
+            on_release:
+                app.root.current = "second"
+                root.manager.transition.direction = "left"
+<SecondWindow>
+    name: "second"
+    GridLayout:
+        cols: 1
+        rows: 7
+        Label:
+            id: firstlabel
+            text: 'What would you like to do?'
+            color: "blue"
+            font_size: self.width/20
+            background_color: "white"
+        Button:
+            id: Mylist
+            text: 'My List'
+            background_color: "white"
+            on_release:
+                app.root.current = "MyList"
+                root.manager.transition.direction = "left"
+        Button:
+            id: ShopByItem
+            text: 'Shop by Item'
+            background_color: "white"
+            on_release:
+                app.root.current = "MyList"
+                root.manager.transition.direction = "left"
+        Button:
+            id: Store
+            text: 'Shop by Store'
+            background_color: "white"
+            on_release:
+                app.root.current = "second"
+                root.manager.transition.direction = "left"
+        Button:
+            id: Sales
+            text: 'Sales'
+            background_color: "white"
+            on_release:
+                app.root.current = "second"
+                root.manager.transition.direction = "left"
+        Button:
+            text: "Settings"
+            on_release:
+                app.root.current = "main"
+                root.manager.transition.direction = "right"
+        Button:
+            text: "Go Back"
+            on_release:
+                app.root.current = "main"
+                root.manager.transition.direction = "right"
+<ThirdWindow>
+    name: "MyList"
+    GridLayout:
+        cols: 1
+        rows: 3
+        Button:
+            id: ViewList
+            text: 'View My List'
+            background_color: "white"
+            on_release:
+                app.root.current = "MyList"
+                root.manager.transition.direction = "left"
+        Button:
+            id: EditList
+            text: 'Edit My List'
+            background_color: "white"
+            on_release:
+                app.root.current = "MyList"
+                root.manager.transition.direction = "left"
+        Button:
+            text: "Go Back"
+            on_release:
+                app.root.current = "second"
+                root.manager.transition.direction = "right"
