@@ -3,6 +3,8 @@ WindowManager:
     MainWidget:
     SecondWindow:
     ThirdWindow:
+    FourthWindow:
+    FifthWindow:
 
 <MainWidget>:
     name: "main"
@@ -53,8 +55,8 @@ WindowManager:
             text: 'Shop by Store'
             background_color: "white"
             on_release:
-                app.root.current = "second"
-                root.manager.transition.direction = "left"
+                app.root.current = "Stores"
+                root.manager.transition.direction = "right"
         Button:
             id: Sales
             text: 'Sales'
@@ -91,6 +93,35 @@ WindowManager:
             on_release:
                 app.root.current = "MyList"
                 root.manager.transition.direction = "left"
+        Button:
+            text: "Go Back"
+            on_release:
+                app.root.current = "second"
+                root.manager.transition.direction = "right"
+
+<FourthWindow>
+    name: "Stores"
+    GridLayout:
+        cols: 1
+        rows: 2
+        Button:
+            text: "Whole Foods"
+            on_release:
+                app.root.current = "WholeFoods"
+                root.manager.transition.direction = "right"
+        Button:
+            text: "Go Back"
+            on_release:
+                app.root.current = "second"
+                root.manager.transition.direction = "right"
+
+<FifthWindow>
+    name: "WholeFoods"
+    GridLayout:
+        cols: 1
+        rows: 2
+        Label:
+            text: root.demo()
         Button:
             text: "Go Back"
             on_release:
