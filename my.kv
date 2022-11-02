@@ -119,10 +119,21 @@ WindowManager:
     name: "WholeFoods"
     GridLayout:
         cols: 1
-        rows: 2
+        rows: 5
         Label:
             text: root.demo()
+        TextInput:
+            multiline: False
+            id: userInput
+            text: "Enter item: "
+            on_text_validate: app.on_side_change(self)
         Button:
+            text: "Submit"
+            on_press: root.press()
+        Label:
+            id: itemInStock
+            text: ""
+        Button: 
             text: "Go Back"
             on_release:
                 app.root.current = "second"
