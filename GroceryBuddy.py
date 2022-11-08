@@ -10,6 +10,9 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.scrollview import ScrollView
+from kivy.properties import StringProperty
+from kivy.lang import Builder
 
 import requests
 from bs4 import BeautifulSoup
@@ -33,8 +36,14 @@ class ThirdWindow(Screen):
 class FourthWindow(Screen):
     pass
 
-class FifthWindow(Screen):
+class ScrollLabel(ScrollView):
+    text = StringProperty("\n")
+    pass
+
+class FifthWindow(Screen):    
     def demo(self):
+        pd.set_option('display.max_rows', None)
+        pd.set_option('display.max_columns', None)
         # Store URl of Whole Foods website
         wholefoods_url = "https://www.wholefoodsmarket.com/products/all-products"
 
@@ -61,7 +70,10 @@ class FifthWindow(Screen):
     
         #adding the stock to the dataframe
         wholefoodsDF["Items"] = stock # add items to dataframe
-        return(str(wholefoodsDF))
+        stock = "\n".join(stock)
+        return (str(stock))
+    
+        #return(str(wholefoodsDF))
 
     def press(self):
         # Store URl of Whole Foods website
@@ -98,7 +110,7 @@ kv = Builder.load_file("my.kv")
 class MyMainApp(App):
     def build(self):
         return kv
-
+        
 
 if __name__ == "__main__":
     MyMainApp().run()
