@@ -117,12 +117,18 @@ WindowManager:
 
 <FifthWindow>
     name: "WholeFoods"
+    
     GridLayout:
         cols: 1
         rows: 5
-        Label:
-            text: root.demo()
+        ScrollLabel:
+            Label:
+                text: root.demo()
         TextInput:
+            height: 50
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
             multiline: False
             id: userInput
             text: "Enter item: "
@@ -130,11 +136,24 @@ WindowManager:
         Button:
             text: "Submit"
             on_press: root.press()
+            height: 30
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
         Label:
             id: itemInStock
             text: ""
+            height: 50
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
         Button: 
+            height: 30
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
             text: "Go Back"
             on_release:
                 app.root.current = "second"
                 root.manager.transition.direction = "right"
+            
