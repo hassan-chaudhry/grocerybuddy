@@ -17,6 +17,9 @@ from kivy.lang import Builder
 import requests
 from bs4 import BeautifulSoup
 
+# store products
+walmart_products = {"Lightly Dried Organic Parsley": 0.35, "Organic Bananas": 1.42, "Organic Baby Peeled Carrots": 1.56, "Organic Grape Tomato": 2.66, "Organic Bagged Avocados": 4.98, "Fresh ORganic Mini Cucumbers": 3.46, "Organic Baby Spinach": 2.98, "Organic Spring Mix": 4.98, "Envy Apples": 1.36, "Gala Apples": 0.84}
+wholefoods_products = {"Organic Honeycrisp Apple": 4.449, "Organic Large Hass Avocados": 5, "Large Hass Avocados": 4, "Organic Broccoli": 2.99, "Medium Hass Avocado": 0.99, "Honeycrisp Apples": 3.29, "Organic Blueberries Pint": 5.99, "Organic Green Asparagus": 4.39, "Organic Fuji Apples": 2.99, "Organic Raspberries": 7.99}
 
 class MainWidget(Screen):
     pass
@@ -41,66 +44,37 @@ class ScrollLabel(ScrollView):
     pass
 
 class FifthWindow(Screen):    
-    def demo(self):
+    def WholeFoods(self):
+	
+	    # scroll view properties
         pd.set_option('display.max_rows', None)
         pd.set_option('display.max_columns', None)
-        # Store URl of Whole Foods website
-        wholefoods_url = "https://www.wholefoodsmarket.com/products/all-products"
-
-        # Get HTML Code
-        page = requests.get(wholefoods_url)
-        source_code = page.text
-        soup = BeautifulSoup(page.content, "html.parser") 
-
-        # Get Grocery Stock
-        id_results = soup.find(id="main-content") # narrow down id
-        results = id_results.find_all("img")  # narrow down class
 
         #creating an empty pandas DataFrame to store all of the product data
         wholefoodsDF = pd.DataFrame()
         
         #creating column for the item names
         wholefoodsDF["Items"] = []
+        global stock 
         stock = []
 
         #go through each item and add its name to a temporary list that we will append to the dataframe
-        for item in results:
-            temp = str(item.get('alt', ''))
-            stock.append(temp)
+        for products in wholefoods_products:
+            stock.append(products)
     
         #adding the stock to the dataframe
         wholefoodsDF["Items"] = stock # add items to dataframe
         stock = "\n".join(stock)
         return (str(stock))
     
-        #return(str(wholefoodsDF))
-
     def press(self):
-        # Store URl of Whole Foods website
-        wholefoods_url = "https://www.wholefoodsmarket.com/products/all-products"
-
-        # Get HTML Code
-        page = requests.get(wholefoods_url)
-        source_code = page.text
-        soup = BeautifulSoup(page.content, "html.parser") 
-
-        # Get Grocery Stock
-        id_results = soup.find(id="main-content") # narrow down id
-        results = id_results.find_all("img")  # narrow down class
-        stock = []
-
-        #go through each item and add its name to a temporary list that we will append to the dataframe
-        for item in results:
-            temp = str(item.get('alt', ''))
-            stock.append(temp)
-
         #check if item in stock       
-        item = self.ids.userInput.text
+        user_product = self.ids.userInput.text
 
-        if item in stock:
-            self.ids.itemInStock.text = item + " in stock!"
+        if user_product in stock:
+            self.ids.itemInStock.text = user_product + " in stock!"
         else:
-            self.ids.itemInStock.text = item + " not in stock!"
+            self.ids.itemInStock.text = user_product + " not in stock!"
     pass
 
 
