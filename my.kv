@@ -123,6 +123,8 @@ WindowManager:
         rows: 5
         ScrollLabel:
             Label:
+                size_hint: None, None     # <<<<<<<<<<
+                size: self.texture_size
                 text: root.demo()
         TextInput:
             height: 50
