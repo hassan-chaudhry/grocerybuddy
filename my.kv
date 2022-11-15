@@ -166,7 +166,7 @@ WindowManager:
     
     GridLayout:
         cols: 1
-        rows: 5
+        rows: 6
         ScrollLabel:
             Label:
                 size_hint: None, None   
@@ -184,7 +184,14 @@ WindowManager:
         Button:
             text: "Submit"
             on_press: root.pressWF()
-            height: 100
+            height: 50
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+        Button:
+            text: "See List"
+            on_press: root.add_datatable()
+            height: 50
             width: 500
             size_hint_y: None
             size_hint_x: 1
@@ -196,7 +203,7 @@ WindowManager:
             size_hint_y: None
             size_hint_x: 1
         Button: 
-            height: 100
+            height: 50
             width: 500
             size_hint_y: None
             size_hint_x: 1
@@ -207,10 +214,9 @@ WindowManager:
 
 <SeventhWindow>
     name: "Walmart"
-    
     GridLayout:
         cols: 1
-        rows: 5
+        rows: 6
         ScrollLabel:
             Label:
                 size_hint: None, None   
@@ -232,6 +238,13 @@ WindowManager:
             width: 500
             size_hint_y: None
             size_hint_x: 1
+        Button:
+            text: "See List"
+            on_press: root.add_datatable()
+            height: 50
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
         Label:
             id: productInWalStock
             text: ""
@@ -240,7 +253,7 @@ WindowManager:
             size_hint_y: None
             size_hint_x: 1
         Button: 
-            height: 100
+            height: 50
             width: 500
             size_hint_y: None
             size_hint_x: 1
