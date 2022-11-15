@@ -13,13 +13,19 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.scrollview import ScrollView
 from kivy.properties import StringProperty
 from kivy.lang import Builder
+from kivymd.app import MDApp
+from kivymd.uix.datatables import MDDataTable
+
+from kivy.lang.builder import Builder
+from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.metrics import dp
 
 import requests
 from bs4 import BeautifulSoup
 
 # store products
-wholefoods_products = {"Organic Honeycrisp Apple": 4.449, "Organic Large Hass Avocados": 5, "Large Hass Avocados": 4, "Organic Broccoli": 2.99, "Medium Hass Avocado": 0.99, "Honeycrisp Apples": 3.29, "Organic Blueberries Pint": 5.99, "Organic Green Asparagus": 4.39, "Organic Fuji Apples": 2.99, "Organic Raspberries": 7.99}
-walmart_products = {"Lightly Dried Organic Parsley": 0.35, "Organic Bananas": 1.42, "Organic Baby Peeled Carrots": 1.56, "Organic Grape Tomato": 2.66, "Organic Bagged Avocados": 4.98, "Fresh Organic Mini Cucumbers": 3.46, "Organic Baby Spinach": 2.98, "Organic Spring Mix": 4.98, "Envy Apples": 1.36, "Gala Apples": 0.84}
+wholefoods_products = {"Organic Honeycrisp Apple": "4.45", "Organic Large Hass Avocados": "5.00", "Large Hass Avocados": "4.00", "Organic Broccoli": "2.99", "Medium Hass Avocado": "0.99", "Honeycrisp Apples": "3.29", "Organic Blueberries Pint": "5.99", "Organic Green Asparagus": "4.39", "Organic Fuji Apples": "2.99", "Organic Raspberries": "7.99"}
+walmart_products = {"Lightly Dried Organic Parsley": "0.35", "Organic Bananas": "1.42", "Organic Baby Peeled Carrots": "1.56", "Organic Grape Tomato": "2.66", "Organic Bagged Avocados": "4.98", "Fresh Organic Mini Cucumbers": "3.46", "Organic Baby Spinach": "2.98", "Organic Spring Mix": "4.98", "Envy Apples": "1.36", "Gala Apples": "0.84"}
 
 class MainWidget(Screen):
     pass
@@ -81,7 +87,6 @@ class ScrollLabel(ScrollView):
     pass
 
 class SixthWindow(Screen):    
-   
     def WholeFoods(self):
 	    # scroll view properties
         pd.set_option('display.max_rows', None)
@@ -113,10 +118,20 @@ class SixthWindow(Screen):
         else:
             self.ids.productInWFStock.text = "Our records indicate that " + user_product + " are currently unavailable."
     
+    def add_datatable(self):
+        resultList = list(wholefoods_products.items())
+        table = MDDataTable(
+            size_hint=(0.9, 0.8),
+            column_data=[
+                ("Product Name", dp(60)),
+                ("Price", dp(60)),
+            ],
+            row_data=resultList
+        )
+        self.add_widget(table)
     pass
 
 class SeventhWindow(Screen):    
-   
     def Walmart(self):
 	    # scroll view properties
         pd.set_option('display.max_rows', None)
@@ -148,13 +163,24 @@ class SeventhWindow(Screen):
         else:
             self.ids.productInWalStock.text = "Our records indicate that " + user_product + " are currently unavailable."
     
+    def add_datatable(self):
+        resultList = list(walmart_products.items())
+        table = MDDataTable(
+            size_hint=(0.9, 0.8),
+            column_data=[
+                ("Product Name", dp(60)),
+                ("Price", dp(60)),
+            ],
+            row_data=resultList
+        )
+        self.add_widget(table)
     pass
 
 
 kv = Builder.load_file("my.kv")
 
 
-class MyMainApp(App):
+class MyMainApp(MDApp):
     def build(self):
         return kv
         
