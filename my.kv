@@ -7,6 +7,8 @@ WindowManager:
     FifthWindow:
     SixthWindow:
     SeventhWindow:
+    EighthWindow:
+    NinthWindow:
 
 <MainWidget>:
     name: "main"
@@ -163,15 +165,9 @@ WindowManager:
 
 <SixthWindow>
     name: "WholeFoods"
-    
     GridLayout:
         cols: 1
-        rows: 6
-        ScrollLabel:
-            Label:
-                size_hint: None, None   
-                size: self.texture_size
-                text: root.WholeFoods()
+        rows: 5
         TextInput:
             height: 200
             width: 500
@@ -190,20 +186,23 @@ WindowManager:
             size_hint_x: 1
         Button:
             text: "See List"
-            on_press: root.add_datatable()
             height: 50
             width: 500
-            size_hint_y: None
+            size_hint_y: 1
             size_hint_x: 1
+            on_release:
+                app.root.current = "WFList"
+                root.manager.transition.direction = "right"
         Label:
             id: productInWFStock
-            text: ""
+            text: " "
+            color: "blue"
             height: 200
             width: 500
-            size_hint_y: None
+            size_hint_y: 1
             size_hint_x: 1
-        Button: 
-            height: 50
+        Button:
+            height: 100
             width: 500
             size_hint_y: None
             size_hint_x: 1
@@ -216,12 +215,7 @@ WindowManager:
     name: "Walmart"
     GridLayout:
         cols: 1
-        rows: 6
-        ScrollLabel:
-            Label:
-                size_hint: None, None   
-                size: self.texture_size
-                text: root.Walmart()
+        rows: 5
         TextInput:
             height: 200
             width: 500
@@ -236,28 +230,63 @@ WindowManager:
             on_press: root.pressWal()
             height: 100
             width: 500
-            size_hint_y: None
+            size_hint_y: 1
             size_hint_x: 1
         Button:
             text: "See List"
-            on_press: root.add_datatable()
             height: 50
             width: 500
-            size_hint_y: None
+            size_hint_y: 1
             size_hint_x: 1
+            on_release:
+                app.root.current = "WalmartList"
+                root.manager.transition.direction = "right"
         Label:
             id: productInWalStock
-            text: ""
+            text: " "
+            color: "blue"
             height: 200
             width: 500
-            size_hint_y: None
+            size_hint_y: 1
             size_hint_x: 1
-        Button: 
-            height: 50
-            width: 500
-            size_hint_y: None
-            size_hint_x: 1
+        Button:
             text: "Go Back"
+            height: 100
+            width: 500
+            size_hint_y: 1
+            size_hint_x: 1
             on_release:
                 app.root.current = "options"
                 root.manager.transition.direction = "right"
+
+<EighthWindow>
+    name: "WalmartList"
+    GridLayout:
+        cols: 1
+        rows: 2
+        Button:
+            text: "Go Back"
+            size_hint_y: 1
+            size_hint_x: 1
+            on_release:
+                app.root.current = "Walmart"
+                root.manager.transition.direction = "right"
+        Button:
+            text: "List"
+            on_press: root.add_datatable()
+
+<NinthWindow>
+    name: "WFList"
+    GridLayout:
+        cols: 1
+        rows: 2
+        Button:
+            text: "Go Back"
+            size_hint_y: 1
+            size_hint_x: 1
+            on_release:
+                app.root.current = "WholeFoods"
+                root.manager.transition.direction = "right"
+        Button:
+            text: "List"
+            on_press: root.add_datatable()
