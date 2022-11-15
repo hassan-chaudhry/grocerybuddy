@@ -5,6 +5,7 @@ WindowManager:
     ThirdWindow:
     FourthWindow:
     FifthWindow:
+    SixthWindow:
 
 <MainWidget>:
     name: "main"
@@ -23,15 +24,15 @@ WindowManager:
             text: 'Enter'
             background_color: "white"
             on_release:
-                app.root.current = "second"
+                app.root.current = "options"
                 root.manager.transition.direction = "left"
 <SecondWindow>
-    name: "second"
+    name: "options"
     GridLayout:
         cols: 1
         rows: 7
         Label:
-            id: firstlabel
+            id: optionsHeader
             text: 'What would you like to do?'
             color: "blue"
             font_size: self.width/20
@@ -44,25 +45,25 @@ WindowManager:
                 app.root.current = "MyList"
                 root.manager.transition.direction = "left"
         Button:
-            id: ShopByItem
+            id: ShopByProduct
             text: 'Shop by Item'
             background_color: "white"
             on_release:
-                app.root.current = "MyList"
+                app.root.current = "ShopByProduct"
                 root.manager.transition.direction = "left"
         Button:
-            id: Store
+            id: ShopByStore
             text: 'Shop by Store'
             background_color: "white"
             on_release:
-                app.root.current = "Stores"
-                root.manager.transition.direction = "right"
+                app.root.current = "ShopByStore"
+                root.manager.transition.direction = "left"
         Button:
             id: Sales
             text: 'Sales'
             background_color: "white"
             on_release:
-                app.root.current = "second"
+                app.root.current = "options"
                 root.manager.transition.direction = "left"
         Button:
             text: "Settings"
@@ -96,11 +97,50 @@ WindowManager:
         Button:
             text: "Go Back"
             on_release:
-                app.root.current = "second"
+                app.root.current = "options"
                 root.manager.transition.direction = "right"
 
 <FourthWindow>
-    name: "Stores"
+    name: "ShopByProduct"
+    GridLayout:
+        cols: 1
+        rows: 4
+        TextInput:
+            height: 300
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+            multiline: False
+            id: userInputSBP
+            text: "Enter item: "
+            on_text_validate: app.on_side_change(self)
+        Button:
+            text: "Submit"
+            on_press: root.pressSBP()
+            height: 100
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+        Label:
+            id: itemSBP
+            text: ""
+            height: 700
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+        Button:
+            text: "Go Back"
+            height: 100
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+            on_release:
+                app.root.current = "options"
+                root.manager.transition.direction = "right"
+        
+
+<FifthWindow>
+    name: "ShopByStore"
     GridLayout:
         cols: 1
         rows: 2
@@ -112,10 +152,10 @@ WindowManager:
         Button:
             text: "Go Back"
             on_release:
-                app.root.current = "second"
+                app.root.current = "options"
                 root.manager.transition.direction = "right"
 
-<FifthWindow>
+<SixthWindow>
     name: "WholeFoods"
     
     GridLayout:
@@ -123,39 +163,38 @@ WindowManager:
         rows: 5
         ScrollLabel:
             Label:
-                size_hint: None, None  
+                size_hint: None, None   
                 size: self.texture_size
                 text: root.WholeFoods()
         TextInput:
-            height: 50
+            height: 200
             width: 500
             size_hint_y: None
             size_hint_x: 1
             multiline: False
-            id: userInput
+            id: userInputWF
             text: "Enter item: "
             on_text_validate: app.on_side_change(self)
         Button:
             text: "Submit"
-            on_press: root.press()
-            height: 30
+            on_press: root.pressWF()
+            height: 100
             width: 500
             size_hint_y: None
             size_hint_x: 1
         Label:
             id: itemInStock
             text: ""
-            height: 50
+            height: 200
             width: 500
             size_hint_y: None
             size_hint_x: 1
         Button: 
-            height: 30
+            height: 100
             width: 500
             size_hint_y: None
             size_hint_x: 1
             text: "Go Back"
             on_release:
-                app.root.current = "second"
+                app.root.current = "options"
                 root.manager.transition.direction = "right"
-            

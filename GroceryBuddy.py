@@ -37,13 +37,26 @@ class ThirdWindow(Screen):
 
 
 class FourthWindow(Screen):
+    def pressSBP(self):
+        user_product = self.ids.userInputSBP.text # product that user searches for 
+
+        productInStore = "" # products in stores that are similar to the one searched for
+        for product in wholefoods_products:
+            if (user_product in product): 
+                productInStore += str(product) + "\n"
+                    
+        self.ids.itemSBP.text = productInStore
+     
+    pass
+
+class FifthWindow(Screen):
     pass
 
 class ScrollLabel(ScrollView):
     text = StringProperty("\n")
     pass
 
-class FifthWindow(Screen):    
+class SixthWindow(Screen):    
     def WholeFoods(self):
 	
 	    # scroll view properties
@@ -58,18 +71,18 @@ class FifthWindow(Screen):
         global stock 
         stock = []
 
-        #go through each item and add its name to a temporary list that we will append to the dataframe
-        for products in wholefoods_products:
-            stock.append(products)
+        # go through each item and append to stock
+        for product in wholefoods_products:
+            stock.append(product)
     
-        #adding the stock to the dataframe
+        # adding the stock to the dataframe
         wholefoodsDF["Items"] = stock # add items to dataframe
         stock = "\n".join(stock)
         return (str(stock))
     
-    def press(self):
+    def pressWF(self):
         #check if item in stock       
-        user_product = self.ids.userInput.text
+        user_product = self.ids.userInputWF.text
 
         if user_product in stock:
             self.ids.itemInStock.text = user_product + " in stock!"
