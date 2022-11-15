@@ -12,7 +12,6 @@ WindowManager:
 
 <MainWidget>:
     name: "main"
-
     GridLayout:
         cols: 1
         rows: 2
@@ -49,7 +48,7 @@ WindowManager:
                 root.manager.transition.direction = "left"
         Button:
             id: ShopByProduct
-            text: 'Shop by Item'
+            text: 'Shop by Product'
             background_color: "white"
             on_release:
                 app.root.current = "ShopByProduct"
@@ -109,9 +108,9 @@ WindowManager:
         cols: 1
         rows: 4
         TextInput:
-            height: 300
+            height: 200
             width: 500
-            size_hint_y: None
+            size_hint_y: 1
             size_hint_x: 1
             multiline: False
             id: userInputSBP
@@ -126,7 +125,8 @@ WindowManager:
             size_hint_x: 1
         Label:
             id: itemSBP
-            text: ""
+            text: " "
+            color: "blue"
             height: 700
             width: 500
             size_hint_y: None
@@ -151,12 +151,12 @@ WindowManager:
             text: "Whole Foods"
             on_release:
                 app.root.current = "WholeFoods"
-                root.manager.transition.direction = "right"
+                root.manager.transition.direction = "left"
         Button:
             text: "Walmart"
             on_release:
                 app.root.current = "Walmart"
-                root.manager.transition.direction = "right"
+                root.manager.transition.direction = "left"
         Button:
             text: "Go Back"
             on_release:
@@ -180,27 +180,27 @@ WindowManager:
         Button:
             text: "Submit"
             on_press: root.pressWF()
-            height: 50
+            height: 100
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+        Label:
+            id: productInWFStock
+            text: " "
+            color: "blue"
+            height: 700
             width: 500
             size_hint_y: None
             size_hint_x: 1
         Button:
             text: "See List"
-            height: 50
+            height: 100
             width: 500
-            size_hint_y: 1
+            size_hint_y: None
             size_hint_x: 1
             on_release:
                 app.root.current = "WFList"
-                root.manager.transition.direction = "right"
-        Label:
-            id: productInWFStock
-            text: " "
-            color: "blue"
-            height: 200
-            width: 500
-            size_hint_y: 1
-            size_hint_x: 1
+                root.manager.transition.direction = "left"
         Button:
             height: 100
             width: 500
@@ -208,7 +208,7 @@ WindowManager:
             size_hint_x: 1
             text: "Go Back"
             on_release:
-                app.root.current = "options"
+                app.root.current = "ShopByStore"
                 root.manager.transition.direction = "right"
 
 <SeventhWindow>
@@ -230,33 +230,33 @@ WindowManager:
             on_press: root.pressWal()
             height: 100
             width: 500
-            size_hint_y: 1
+            size_hint_y: None
             size_hint_x: 1
-        Button:
-            text: "See List"
-            height: 50
-            width: 500
-            size_hint_y: 1
-            size_hint_x: 1
-            on_release:
-                app.root.current = "WalmartList"
-                root.manager.transition.direction = "right"
         Label:
             id: productInWalStock
             text: " "
             color: "blue"
-            height: 200
+            height: 700
             width: 500
-            size_hint_y: 1
+            size_hint_y: None
             size_hint_x: 1
+        Button:
+            text: "See List"
+            height: 100
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+            on_release:
+                app.root.current = "WalmartList"
+                root.manager.transition.direction = "left"
         Button:
             text: "Go Back"
             height: 100
             width: 500
-            size_hint_y: 1
+            size_hint_y: None
             size_hint_x: 1
             on_release:
-                app.root.current = "options"
+                app.root.current = "ShopByStore"
                 root.manager.transition.direction = "right"
 
 <EighthWindow>
@@ -290,3 +290,4 @@ WindowManager:
         Button:
             text: "List"
             on_press: root.add_datatable()
+
