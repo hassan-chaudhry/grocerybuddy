@@ -6,6 +6,7 @@ WindowManager:
     FourthWindow:
     FifthWindow:
     SixthWindow:
+    SeventhWindow:
 
 <MainWidget>:
     name: "main"
@@ -143,11 +144,16 @@ WindowManager:
     name: "ShopByStore"
     GridLayout:
         cols: 1
-        rows: 2
+        rows: 3
         Button:
             text: "Whole Foods"
             on_release:
                 app.root.current = "WholeFoods"
+                root.manager.transition.direction = "right"
+        Button:
+            text: "Walmart"
+            on_release:
+                app.root.current = "Walmart"
                 root.manager.transition.direction = "right"
         Button:
             text: "Go Back"
@@ -183,7 +189,51 @@ WindowManager:
             size_hint_y: None
             size_hint_x: 1
         Label:
-            id: itemInStock
+            id: productInWFStock
+            text: ""
+            height: 200
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+        Button: 
+            height: 100
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+            text: "Go Back"
+            on_release:
+                app.root.current = "options"
+                root.manager.transition.direction = "right"
+
+<SeventhWindow>
+    name: "Walmart"
+    
+    GridLayout:
+        cols: 1
+        rows: 5
+        ScrollLabel:
+            Label:
+                size_hint: None, None   
+                size: self.texture_size
+                text: root.Walmart()
+        TextInput:
+            height: 200
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+            multiline: False
+            id: userInputWal
+            text: "Enter item: "
+            on_text_validate: app.on_side_change(self)
+        Button:
+            text: "Submit"
+            on_press: root.pressWal()
+            height: 100
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+        Label:
+            id: productInWalStock
             text: ""
             height: 200
             width: 500
