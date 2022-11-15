@@ -24,8 +24,8 @@ import requests
 from bs4 import BeautifulSoup
 
 # store products
-wholefoods_products = {"Organic Honeycrisp Apple": "4.45", "Organic Large Hass Avocados": "5.00", "Large Hass Avocados": "4.00", "Organic Broccoli": "2.99", "Medium Hass Avocado": "0.99", "Honeycrisp Apples": "3.29", "Organic Blueberries Pint": "5.99", "Organic Green Asparagus": "4.39", "Organic Fuji Apples": "2.99", "Organic Raspberries": "7.99"}
-walmart_products = {"Lightly Dried Organic Parsley": "0.35", "Organic Bananas": "1.42", "Organic Baby Peeled Carrots": "1.56", "Organic Grape Tomato": "2.66", "Organic Bagged Avocados": "4.98", "Fresh Organic Mini Cucumbers": "3.46", "Organic Baby Spinach": "2.98", "Organic Spring Mix": "4.98", "Envy Apples": "1.36", "Gala Apples": "0.84"}
+wholefoods_products = {"Organic Honeycrisp Apple": "4.45", "Organic Large Hass Avocados": "5.00", "Large Hass Avocados": "4.00", "Organic Broccoli": "2.99", "Medium Hass Avocado": "0.99", "Honeycrisp Apples": "3.29", "Organic Blueberries Pint": "5.99", "Organic Green Asparagus": "4.39", "Organic Fuji Apples": "2.99", "Organic Raspberries": "7.99", "Organic Grade A Whole Milk, 1 gallon": "6.99", "Full Fat Oat Milk, 64 fl oz": "5.99", "Organic Large Brown Eggs, 24 oz": "5.79", "Large Eggs, 36 oz": "8.79"}
+walmart_products = {"Lightly Dried Organic Parsley": "0.35", "Organic Bananas": "1.42", "Organic Baby Peeled Carrots": "1.56", "Organic Grape Tomato": "2.66", "Organic Bagged Avocados": "4.98", "Fresh Organic Mini Cucumbers": "3.46", "Organic Baby Spinach": "2.98", "Organic Spring Mix": "4.98", "Envy Apples": "1.36", "Gala Apples": "0.84", "a2 Milk Whole Milk": "3.97", "Great Value Whole Vitamin D Milk, Gallon, 128 fl oz": "$4.37", "Deans TruMoo 1% Low Fat Chocolate Milk, Gallon, 128 fl oz": "5.37", "Great Value Large White Eggs, 12 Count": "2.82", "Great Value Large White Eggs, 18 Count":"4.12"}
 
 class MainWidget(Screen):
     pass
@@ -111,9 +111,9 @@ class SixthWindow(Screen):
         user_product = self.ids.userInputWF.text
 
         if user_product.lower() in stockWF.lower():
-            self.ids.productInWFStock.text = user_product + " are available! The product is priced at $" + wholefoods_products.get(user_product)
+            self.ids.productInWFStock.text = user_product + " are available at Whole Foods! The product is priced at $" + wholefoods_products.get(user_product) + "."
         else:
-            self.ids.productInWFStock.text = "Our records indicate that " + user_product + " are currently unavailable."
+            self.ids.productInWFStock.text = "Our records indicate that " + user_product + " are currently unavailable at Whole Foods."
     pass
 
 class SeventhWindow(Screen):     
@@ -141,9 +141,9 @@ class SeventhWindow(Screen):
         user_product = self.ids.userInputWal.text
 
         if user_product.lower() in stockWal.lower():
-            self.ids.productInWalStock.text = user_product + " are available! The product is priced at $" + str(walmart_products.get(user_product))
+            self.ids.productInWalStock.text = user_product + " are available at Walmart! The product is priced at $" + walmart_products.get(user_product) + "."
         else:
-            self.ids.productInWalStock.text = "Our records indicate that " + user_product + " are currently unavailable."
+            self.ids.productInWalStock.text = "Our records indicate that " + user_product + " are currently unavailable at Walmart."
     pass
 
 class EighthWindow(Screen):
@@ -186,3 +186,4 @@ class MyMainApp(MDApp):
 
 if __name__ == "__main__":
     MyMainApp().run()
+
