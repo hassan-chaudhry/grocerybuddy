@@ -11,6 +11,7 @@ WindowManager:
     NinthWindow:
     TenthWindow:
     EleventhWindow:
+    TwelfthWindow:
 
 <MainWidget>:
     name: "main"
@@ -103,7 +104,7 @@ WindowManager:
             text: 'Edit My List'
             background_color: "white"
             on_release:
-                app.root.current = "MyList"
+                app.root.current = "EditMyList"
                 root.manager.transition.direction = "left"
         Button:
             text: "Go Back"
@@ -149,7 +150,7 @@ WindowManager:
             on_release:
                 app.root.current = "options"
                 root.manager.transition.direction = "right"
-        
+
 
 <FifthWindow>
     name: "ShopByStore"
@@ -222,7 +223,7 @@ WindowManager:
             size_hint_y: None
             size_hint_x: 1
             multiline: False
-            on_text_validate: app.on_side_change(self)                           
+            on_text_validate: app.on_side_change(self)
         Button:
             text: "Check Results"
             height: 100
@@ -368,3 +369,27 @@ WindowManager:
         Button:
             text: "List"
             on_press: root.add_datatable()
+<TwelfthWindow>
+    name: "EditMyList"
+    itemname_text_input: item_name
+    GridLayout:
+        cols: 1
+        rows: 4
+        Label:
+            text: "Add an Item:"
+            pos: 655,400
+            size: 100, 30
+        TextInput:
+            id: item_name
+            pos: 760,400
+            size: 100, 30
+        Button:
+            text: "Save Name"
+            pos: 870,400
+            size: 100, 30
+            on_release: root.submit_itemname()
+        Button:
+            text: "Go Back"
+            on_release:
+                app.root.current = "MyList"
+                root.manager.transition.direction = "right"
