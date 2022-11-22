@@ -15,10 +15,14 @@ from kivy.properties import StringProperty
 from kivy.lang import Builder
 from kivymd.app import MDApp
 from kivymd.uix.datatables import MDDataTable
+from kivy.core.window import Window
 
 from kivy.lang.builder import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.metrics import dp
+
+from PIL import Image
+from pytesseract import pytesseract
 
 import requests
 from bs4 import BeautifulSoup
@@ -137,6 +141,7 @@ class SeventhWindow(Screen):
         # adding the stock to the dataframe
         walmartDF["Items"] = stockWal # add items to dataframe
         stockWal = "\n".join(stockWal)
+
         #check if item in stock       
         user_product = self.ids.userInputWal.text
 
@@ -176,8 +181,33 @@ class NinthWindow(Screen):
         self.add_widget(table)
     pass
 
-kv = Builder.load_file("my.kv")
+class TenthWindow(Screen):
+    filePath = StringProperty('')
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        Window.bind(on_dropfile=self._on_file_drop)
+
+    def reduced_image(self):
+        print(self.filePath)
+
+    def _on_file_drop(self, window, file_path):
+        print(file_path)
+        self.filePath = file_path.decode("utf-8") # convert byte to string
+        self.ids.receipt.source = self.filePath
+        self.ids.receipt.reload()  
+    pass
+
+class EleventhWindow(Screen):
+    def pressReceipt(self):
+        filePath = '/Users/hassanchaudhry/Desktop/receipt1.jpg'
+        path_to_tesseract = r'/usr/local/bin/tesseract'
+        pytesseract.tesseract_cmd = path_to_tesseract
+        img = Image.open(filePath)
+        self.ids.checkReceiptInput.text = str(pytesseract.image_to_string(img))
+    pass
+
+kv = Builder.load_file("my.kv")
 
 class MyMainApp(MDApp):
     def build(self):

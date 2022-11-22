@@ -9,6 +9,8 @@ WindowManager:
     SeventhWindow:
     EighthWindow:
     NinthWindow:
+    TenthWindow:
+    EleventhWindow:
 
 <MainWidget>:
     name: "main"
@@ -32,7 +34,7 @@ WindowManager:
     name: "options"
     GridLayout:
         cols: 1
-        rows: 7
+        rows: 8
         Label:
             id: optionsHeader
             text: 'What would you like to do?'
@@ -59,6 +61,13 @@ WindowManager:
             background_color: "white"
             on_release:
                 app.root.current = "ShopByStore"
+                root.manager.transition.direction = "left"
+        Button:
+            id: AddReceipt
+            text: 'Add Receipt'
+            background_color: "white"
+            on_release:
+                app.root.current = "AddReceipt"
                 root.manager.transition.direction = "left"
         Button:
             id: Sales
@@ -159,6 +168,75 @@ WindowManager:
                 root.manager.transition.direction = "left"
         Button:
             text: "Go Back"
+            on_release:
+                app.root.current = "options"
+                root.manager.transition.direction = "right"
+
+<TenthWindow>
+    name: "AddReceipt"
+    GridLayout:
+        cols: 1
+        rows: 3
+        Label:
+            id: addReceiptLabel
+            text: "Drop a receipt below!"
+            color: "blue"
+            height: 200
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+        Image:
+            id: receipt
+            height: 800
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+        Button:
+            text: "Submit"
+            height: 200
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+            on_release:
+                app.root.current = "CheckReceipt"
+                root.manager.transition.direction = "right"
+
+<EleventhWindow>
+    name: "CheckReceipt"
+    GridLayout:
+        cols: 1
+        rows: 4
+        Label:
+            id: checkReceiptLabel
+            text: "Would you like to change any information beloow?"
+            color: "blue"
+            height: 200
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+        TextInput:
+            id: checkReceiptInput
+            text: " "
+            height: 800
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+            multiline: False
+            on_text_validate: app.on_side_change(self)                           
+        Button:
+            text: "Check Results"
+            height: 100
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+            on_release:
+                on_press: root.pressReceipt()
+        Button:
+            text: "Submit"
+            height: 100
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
             on_release:
                 app.root.current = "options"
                 root.manager.transition.direction = "right"
@@ -290,4 +368,3 @@ WindowManager:
         Button:
             text: "List"
             on_press: root.add_datatable()
-
