@@ -215,25 +215,22 @@ class TenthWindow(Screen):
         super().__init__(**kwargs)
         Window.bind(on_dropfile=self._on_file_drop)
 
-    def reduced_image(self):
+    def reduced_image(self): # fit on screen 
         print(self.filePath)
 
-    def _on_file_drop(self, window, file_path):
+    def _on_file_drop(self, window, file_path): # drag & drop 
         print(file_path)
-        self.filePath = file_path.decode("utf-8")  # convert byte to string
+        self.filePath = file_path.decode("utf-8") # read file path
         self.ids.receipt.source = self.filePath
-        self.ids.receipt.reload()
-
+        self.ids.receipt.reload() # reload screen with image
     pass
 
 
 class EleventhWindow(Screen):
     def pressReceipt(self):
-        filePath = '/Users/hassanchaudhry/Desktop/receipt1.jpg'
-        path_to_tesseract = r'/usr/local/bin/tesseract'
-        pytesseract.tesseract_cmd = path_to_tesseract
+        filePath = self.manager.get_screen("AddReceipt").ids.receipt.source # get file path from TenthWindow
         img = Image.open(filePath)
-        self.ids.checkReceiptInput.text = str(pytesseract.image_to_string(img))
+        self.ids.checkReceiptInput.text = str(pytesseract.image_to_string(img)) # convert image to text
 
     pass
 
