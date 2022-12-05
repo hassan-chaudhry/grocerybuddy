@@ -12,7 +12,7 @@ WindowManager:
     TenthWindow:
     EleventhWindow:
     TwelfthWindow:
-
+    ViewMyList:
 <MainWidget>:
     name: "main"
     GridLayout:
@@ -97,7 +97,7 @@ WindowManager:
             text: 'View My List'
             background_color: "white"
             on_release:
-                app.root.current = "MyList"
+                app.root.current = "ViewMyList"
                 root.manager.transition.direction = "left"
         Button:
             id: EditList
@@ -388,6 +388,23 @@ WindowManager:
             pos: 870,400
             size: 100, 30
             on_release: root.submit_itemname()
+        Button:
+            text: "Go Back"
+            on_release:
+                app.root.current = "MyList"
+                root.manager.transition.direction = "right"
+<ViewMyList>
+    name: "ViewMyList"
+    GridLayout:
+        cols: 1
+        rows: 3
+        Label:
+            id: itemlistlabel
+            text: "x"
+            color: "blue"
+        Button:
+            text: "Show Updated List"
+            on_press: root.updateMyList()
         Button:
             text: "Go Back"
             on_release:
