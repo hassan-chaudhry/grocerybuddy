@@ -215,10 +215,11 @@ class TenthWindow(Screen):
         super().__init__(**kwargs)
         Window.bind(on_dropfile=self._on_file_drop)
 
-    def reduced_image(self): # fit on screen
+
+    def reduced_image(self): # fit on screen 
         print(self.filePath)
 
-    def _on_file_drop(self, window, file_path): # drag & drop
+    def _on_file_drop(self, window, file_path): # drag & drop 
         print(file_path)
         self.filePath = file_path.decode("utf-8") # read file path
         self.ids.receipt.source = self.filePath
