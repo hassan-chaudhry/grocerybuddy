@@ -236,6 +236,7 @@ class EleventhWindow(Screen):
 
 class TwelfthWindow(Screen):
     itemname_text_input = ObjectProperty()
+    ego = NumericProperty(0)
     itemname = StringProperty('')
 
     def submit_itemname(self):
@@ -245,11 +246,10 @@ class TwelfthWindow(Screen):
         self.itemname = ''
 
     def save(self):
-        with open("itemname.txt", "a") as fobj:
-            fobj.write(str(self.itemname + "\n"))
+        with open("itemname.txt", "w") as fobj:
+            fobj.write(str(self.itemname))
 
     pass
-
 
 class ViewMyList(Screen):
     def updateMyList(self):
@@ -261,12 +261,9 @@ kv = Builder.load_file("my.kv")
 
 
 class MyMainApp(MDApp):
-    with open("itemname.txt", "r") as fobj:
-        items = fobj
-        print(items)
-
     def build(self):
         return kv
+
 
 
 if __name__ == "__main__":
