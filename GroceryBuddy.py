@@ -215,6 +215,7 @@ class TenthWindow(Screen):
         super().__init__(**kwargs)
         Window.bind(on_dropfile=self._on_file_drop)
 
+
     def reduced_image(self): # fit on screen 
         print(self.filePath)
 
@@ -251,12 +252,19 @@ class TwelfthWindow(Screen):
 
     pass
 
+class ViewMyList(Screen):
+    def updateMyList(self):
+        with open("itemname.txt", "r") as fobj:
+            self.ids.itemlistlabel.text = fobj.read()
+    pass
+
 kv = Builder.load_file("my.kv")
 
 
 class MyMainApp(MDApp):
     def build(self):
         return kv
+
 
 
 if __name__ == "__main__":
