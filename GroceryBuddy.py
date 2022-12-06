@@ -169,6 +169,7 @@ class SixthWindow(Screen):
         # adding the stock to the dataframe
         wholefoodsDF["Items"] = stockWF  # add items to dataframe
         stockWF = "\n".join(stockWF)
+        
         # check if item in stock
         user_product = self.ids.userInputWF.text
 
@@ -213,7 +214,7 @@ class SeventhWindow(Screen):
         user_product = self.ids.userInputWal.text
 
         # get price of product 
-        for product in wholefoods_products:  
+        for product in walmart_products:  
             store_product = str(product[2])
             store_price = str(product[3])
             if store_product.lower() == user_product.lower():
