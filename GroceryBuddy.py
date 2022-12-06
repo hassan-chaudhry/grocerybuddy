@@ -39,6 +39,10 @@ from google.cloud.sql.connector import Connector
 from PIL import Image
 from pytesseract import pytesseract
 
+# request and json modules for reading receipts
+import requests
+import json
+
 ############################
 #  CLOUD DATABASE ACCESS   #
 ############################
@@ -290,9 +294,41 @@ class TenthWindow(Screen):
 class EleventhWindow(Screen):
 # read data from receipt
     def pressReceipt(self):
-        filePath = self.manager.get_screen("AddReceipt").ids.receipt.source # get file path from TenthWindow
-        img = Image.open(filePath)
-        self.ids.checkReceiptInput.text = str(pytesseract.image_to_string(img)) # convert image to text
+
+        # use API to read data from receipt
+        receiptOcrEndpoint = 'https://ocr.asprise.com/api/v1/receipt' # Receipt OCR API endpoint
+        imageFile = self.manager.get_screen("AddReceipt").ids.receipt.source # get file path from TenthWindow
+
+        # access API and get receipt results as JSON file
+        receiptData = requests.post(receiptOcrEndpoint, data = {
+            'api_key': 'TEST',          # Use 'TEST' for testing purpose
+            'recognizer': 'US',         # can be 'US', 'CA', 'JP', 'SG' or 'auto'
+            'ref_no': 'ocr_python_123', # optional caller provided ref code
+         },
+        files = {"file": open(imageFile, "rb")})
+
+        # returns JSON object as a dictionary
+        receiptDic = json.loads(receiptData.text, strict=False)
+
+        # use in place of API for demo purposes to limit API requests
+        # filePath = "/Users/hassanchaudhry/Desktop/receipt.text" 
+        # receiptData = open(filePath, "r")
+        # receiptDic = json.loads(receiptData.read(), strict=False)
+
+        # iterate through receipt and print: store name, store address, products, prices
+        printReceipt = ""
+        for receipt in receiptDic['receipts']:
+                printReceipt += "Store Name: " + str(receipt['merchant_name']) + "\n"
+                printReceipt += "Store Address: " + str(receipt['merchant_address']) + "\n \n"
+                for item in receipt['items']:
+                        store_item = str(item['description'])
+                        store_price = str(item['amount'])
+                        printReceipt += store_item + ",  $" + store_price + "\n"
+
+        # Closing file
+        # receiptResults.close()
+
+        self.ids.checkReceiptInput.text = printReceipt
 
     pass
 
