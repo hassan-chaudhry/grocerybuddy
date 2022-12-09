@@ -33,6 +33,9 @@ import pandas as pd
 
 # SQL and Google Cloud to connect to database
 import sqlalchemy
+from sqlalchemy import insert
+from sqlalchemy import update
+from sqlalchemy.orm import relationship, sessionmaker
 from google.cloud.sql.connector import Connector
 
 # PIL and pytesseract modules for image to text conversion
@@ -50,7 +53,7 @@ import json
 # initialize parameters
 INSTANCE_CONNECTION_NAME = f"grocerybuddy-370504:us-central1:grocery-buddy"
 DB_USER = "GroceryBuddy"
-DB_PASS = "GroceryBuddy7!"
+DB_PASS = "GroceryBuddyPass7"
 DB_NAME = "grocery_buddy_database"
 
 # initialize Connector object
@@ -73,12 +76,31 @@ pool = sqlalchemy.create_engine(
     creator=getconn,
 )
 
+Session = sessionmaker(bind=pool)
+session = Session()
+
 # connect to connection pool
 with pool.connect() as db_conn:
-    insert_database = sqlalchemy.text("INSERT INTO gb_database (store, product, price) VALUES (:store, :product, :price)"), # use insert_stmt to insert data into our database
-    
     # database table layout: id = store[0], stores = database[1], products = database[2], prices = database[3]
     database = db_conn.execute("SELECT * FROM gb_database").fetchall()
+
+    # get stores from database
+    db_stores = db_conn.execute("SELECT store FROM gb_database").fetchall()
+    stores = [] # convert to list
+    for store in db_stores:
+        store = str(store)
+        store = store.replace("('", "")
+        store = store.replace("',)", "")
+        stores.append(store)
+
+    # get products from database
+    db_products = db_conn.execute("SELECT product FROM gb_database").fetchall()
+    products = [] # convert to list
+    for product in db_products:
+        product = str(product)
+        product = product.replace("('", "")
+        product = product.replace("',)", "")
+        products.append(product)
 
     # divide table into stores
     wholefoods_products = db_conn.execute("SELECT * FROM gb_database WHERE store='whole_foods'").fetchall()
@@ -173,17 +195,18 @@ class SixthWindow(Screen):
         # check if item in stock
         user_product = self.ids.userInputWF.text
 
-        # get price of product 
+        # get info of product 
         for product in wholefoods_products:  
+            store_name = str(product[1])
             store_product = str(product[2])
             store_price = str(product[3])
             if store_product.lower() == user_product.lower():
                 break
 
         if user_product.lower() in stockWF.lower():
-            self.ids.productInWFStock.text = user_product + " are available at Whole Foods! The product is priced at $" + store_price + "."
+            self.ids.productInWFStock.text = user_product + " are available at " + store_name + "! The product is priced at $" + store_price + "."
         else:
-            self.ids.productInWFStock.text = "Our records indicate that " + user_product + " are currently unavailable at Whole Foods."
+            self.ids.productInWFStock.text = "Our records indicate that " + user_product + " are currently unavailable at " + store_name + "."
 
     pass
 
@@ -213,17 +236,18 @@ class SeventhWindow(Screen):
         # check if item in stock
         user_product = self.ids.userInputWal.text
 
-        # get price of product 
+        # get info of product 
         for product in walmart_products:  
+            store_name = str(product[1])
             store_product = str(product[2])
             store_price = str(product[3])
             if store_product.lower() == user_product.lower():
                 break
 
         if user_product.lower() in stockWal.lower():
-            self.ids.productInWalStock.text = user_product + " are available at Walmart! The product is priced at $" + store_price + "."
+            self.ids.productInWFStock.text = user_product + " are available at " + store_name + "! The product is priced at $" + store_price + "."
         else:
-            self.ids.productInWalStock.text = "Our records indicate that " + user_product + " are currently unavailable at Walmart."
+            self.ids.productInWFStock.text = "Our records indicate that " + user_product + " are currently unavailable at " + store_name + "."
 
     pass
 
@@ -294,8 +318,8 @@ class TenthWindow(Screen):
 
 class EleventhWindow(Screen):
 # read data from receipt
-    def pressReceipt(self):
-
+    def pressReceipt(self): # "Check Results" button - reads and prints receipt
+ 
         # use API to read data from receipt
         receiptOcrEndpoint = 'https://ocr.asprise.com/api/v1/receipt' # Receipt OCR API endpoint
         imageFile = self.manager.get_screen("AddReceipt").ids.receipt.source # get file path from TenthWindow
@@ -312,24 +336,65 @@ class EleventhWindow(Screen):
         receiptDic = json.loads(receiptData.text, strict=False)
 
         # use in place of API for demo purposes to limit API requests
-        # filePath = "/Users/hassanchaudhry/Desktop/receipt.text" 
+        # filePath = "/Users/hassanchaudhry/Desktop/receipt.text" # replace with path to receipt.text
         # receiptData = open(filePath, "r")
         # receiptDic = json.loads(receiptData.read(), strict=False)
 
         # iterate through receipt and print: store name, store address, products, prices
         printReceipt = ""
         for receipt in receiptDic['receipts']:
-                printReceipt += "Store Name: " + str(receipt['merchant_name']) + "\n"
-                printReceipt += "Store Address: " + str(receipt['merchant_address']) + "\n \n"
+                store_name = "" + str(receipt['merchant_name']) + " at " + str(receipt['merchant_address'])
+                printReceipt += "Store: " + store_name + "\n \n"
                 for item in receipt['items']:
-                        store_item = str(item['description'])
+                        store_product = str(item['description'])
                         store_price = str(item['amount'])
-                        printReceipt += store_item + ",  $" + store_price + "\n"
+                        printReceipt += store_product + ",  $" + store_price + "\n"
 
-        # Closing file
-        # receiptResults.close()
+        self.ids.checkReceiptInput.text = printReceipt # print receipt
+    
+    def submitReceipt(self): # "Submit" button - uploads receipt info to database
+        # connect to connection pool
+        with pool.connect() as db_conn:
 
-        self.ids.checkReceiptInput.text = printReceipt
+            # get table object
+            metaData = sqlalchemy.MetaData()
+            gb_database = sqlalchemy.Table('gb_database', metaData, autoload=True, autoload_with=pool)
+
+            # get info from printReceipt
+            receiptPrinted = self.manager.get_screen("CheckReceipt").ids.checkReceiptInput.text # get file path from TenthWindow
+
+            receiptLines = receiptPrinted.split("\n") # split receipt info into lines
+            store_name = receiptLines[0] # first line of receipt info is store name 
+            store_name = store_name.replace("Store: ", "") # remove substring to get store name only
+
+            for i in range(2, len(receiptLines)-1): # iterate trhough lines of products in receipt info
+                if (receiptLines[i]): # account for change in size of list by user
+                    receiptLine = receiptLines[i].split(",") # for each line, split into product and price
+                    store_product = receiptLine[0] # first part is product name
+                    store_price = receiptLine[1] # second part is product price
+                    store_price = store_price.replace(" $", "") # remove substirng to get only product price
+                    store_price = store_price.strip() # remove white spaces in product price
+            
+                # update database if necessary
+                if store_name in stores: # if store in database
+                    if store_product in products: # if product in database
+                        
+                        # get price of product 
+                        temp = session.query(gb_database).filter_by(product=store_product).first()
+                        curr_price = temp.price
+
+                        if store_price != curr_price: # if price is different than one in database
+                            # update price
+                            query = sqlalchemy.update(gb_database).where(gb_database.columns.store==store_name, gb_database.columns.product==store_product).values(price=store_price)
+                            db_conn.execute(query)
+                    else: # if product not in database
+                        # add product and price to database
+                        query = sqlalchemy.insert(gb_database).values(store=store_name, product=store_product, price=store_price)
+                        db_conn.execute(query)
+                else: # if store and/or product not in database
+                    # add store, product, and price to database
+                    query = sqlalchemy.insert(gb_database).values(store=store_name, product=store_product, price=store_price)
+                    db_conn.execute(query)
 
     pass
 
@@ -356,6 +421,7 @@ class ViewMyList(Screen):
     def updateMyList(self):
         with open("itemname.txt", "r") as fobj:
             self.ids.itemlistlabel.text = fobj.read()
+ 
     pass
 
 ######################
