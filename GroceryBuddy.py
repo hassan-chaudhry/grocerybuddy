@@ -38,10 +38,6 @@ from sqlalchemy import update
 from sqlalchemy.orm import relationship, sessionmaker
 from google.cloud.sql.connector import Connector
 
-# PIL and pytesseract modules for image to text conversion
-from PIL import Image
-from pytesseract import pytesseract
-
 # request and json modules for reading receipts
 import requests
 import json
@@ -76,6 +72,7 @@ pool = sqlalchemy.create_engine(
     creator=getconn,
 )
 
+# initialize session
 Session = sessionmaker(bind=pool)
 session = Session()
 
