@@ -13,6 +13,7 @@ WindowManager:
     EleventhWindow:
     TwelfthWindow:
     ViewMyList:
+    ShopByStore2:
 
 <MainWidget>:
     name: "main"
@@ -62,7 +63,7 @@ WindowManager:
             text: 'Shop by Store'
             background_color: "white"
             on_release:
-                app.root.current = "ShopByStore"
+                app.root.current = "ShopByStore2"
                 root.manager.transition.direction = "left"
         Button:
             id: AddReceipt
@@ -371,6 +372,7 @@ WindowManager:
         Button:
             text: "List"
             on_press: root.add_datatable()
+
 <TwelfthWindow>
     name: "EditMyList"
     itemname_text_input: item_name
@@ -412,3 +414,23 @@ WindowManager:
             on_release:
                 app.root.current = "MyList"
                 root.manager.transition.direction = "right"
+
+<ShopByStore2>
+    name: "ShopByStore2"
+    BoxLayout:
+        orientation: "vertical"
+        size: root.width, root.height
+        Button:
+            id: go_back
+            text: "Go Back"
+            font_size: 32
+            size_hint: (1,1)
+            on_release:
+                app.root.current = "options"
+                root.manager.transition.direction = "right"
+        Spinner:
+            id:spinner_id
+            text: "Choose a Store"
+            values: root.getStores()
+            size_hint: (1,1)
+            on_text: root.spinner_clicked(self.text)
