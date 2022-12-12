@@ -30,6 +30,7 @@ from kivy.metrics import dp
 # panda module for data tables
 from tkinter import Widget
 import pandas as pd
+import numpy as np
 
 # SQL and Google Cloud to connect to database
 import sqlalchemy
@@ -41,6 +42,7 @@ from google.cloud.sql.connector import Connector
 # request and json modules for reading receipts
 import requests
 import json
+
 
 ############################
 #  CLOUD DATABASE ACCESS   #
@@ -80,7 +82,7 @@ session = Session()
 with pool.connect() as db_conn:
     # database table layout: id = store[0], stores = database[1], products = database[2], prices = database[3]
     database = db_conn.execute("SELECT * FROM gb_database").fetchall()
-
+    
     # get stores from database
     db_stores = db_conn.execute("SELECT store FROM gb_database").fetchall()
     stores = [] # convert to list
@@ -89,7 +91,9 @@ with pool.connect() as db_conn:
         store = store.replace("('", "")
         store = store.replace("',)", "")
         stores.append(store)
-
+    
+    stores = [*set(stores)]
+    
     # get products from database
     db_products = db_conn.execute("SELECT product FROM gb_database").fetchall()
     products = [] # convert to list
@@ -98,11 +102,10 @@ with pool.connect() as db_conn:
         product = product.replace("('", "")
         product = product.replace("',)", "")
         products.append(product)
-
+        
     # divide table into stores
     wholefoods_products = db_conn.execute("SELECT * FROM gb_database WHERE store='whole_foods'").fetchall()
     walmart_products = db_conn.execute("SELECT * FROM gb_database WHERE store='walmart'").fetchall()
-
 ##############
 #  SCREENS   #
 ##############
@@ -281,6 +284,7 @@ class NinthWindow(Screen):
             wf_prices.append(str(product[3]))
 
         resultList = (wf_products)
+
         table = MDDataTable(
             use_pagination=True,
             size_hint=(1, .5),
@@ -291,7 +295,7 @@ class NinthWindow(Screen):
             row_data=resultList
         )
         self.add_widget(table)
-
+        
     pass
 
 class TenthWindow(Screen):
@@ -315,7 +319,7 @@ class TenthWindow(Screen):
 
 class EleventhWindow(Screen):
 # read data from receipt
-    def pressReceipt(self): # "Check Results" button - reads and prints receipt
+    '''def pressReceipt(self): # "Check Results" button - reads and prints receipt
  
         # use API to read data from receipt
         receiptOcrEndpoint = 'https://ocr.asprise.com/api/v1/receipt' # Receipt OCR API endpoint
@@ -333,9 +337,9 @@ class EleventhWindow(Screen):
         receiptDic = json.loads(receiptData.text, strict=False)
 
         # use in place of API for demo purposes to limit API requests
-        # filePath = "/Users/hassanchaudhry/Desktop/receipt.text" # replace with path to receipt.text
-        # receiptData = open(filePath, "r")
-        # receiptDic = json.loads(receiptData.read(), strict=False)
+        #filePath = "/Users/hassanchaudhry/Desktop/receipt.text" # replace with path to receipt.text
+        #receiptData = open(filePath, "r")
+        #receiptDic = json.loads(receiptData.read(), strict=False)
 
         # iterate through receipt and print: store name, store address, products, prices
         printReceipt = ""
@@ -348,7 +352,7 @@ class EleventhWindow(Screen):
                         printReceipt += store_product + ",  $" + store_price + "\n"
 
         self.ids.checkReceiptInput.text = printReceipt # print receipt
-    
+  '''
     def submitReceipt(self): # "Submit" button - uploads receipt info to database
         # connect to connection pool
         with pool.connect() as db_conn:
@@ -394,23 +398,52 @@ class EleventhWindow(Screen):
                     db_conn.execute(query)
 
     pass
-
 class TwelfthWindow(Screen):
-# add item to grocery list
-    itemname_text_input = ObjectProperty()
-    ego = NumericProperty(0)
-    itemname = StringProperty('')
-
-    def submit_itemname(self):
-        self.itemname = self.itemname_text_input.text
-        print("Item Added {}".format(self.itemname))
-        self.save()
-        self.itemname = ''
-
-    def save(self):
-        with open("itemname.txt", "w") as fobj:
-            fobj.write(str(self.itemname))
-
+    pass
+class ShopByStore2(Screen):
+    def getStores(self):
+        return stores
+    
+    def spinner_clicked(self, value):
+        value = "'"+value+"'"
+        with pool.connect() as db_conn:
+            storeItems = db_conn.execute("SELECT product FROM gb_database WHERE store={}".format(value)).fetchall()
+            itemPrices = db_conn.execute("SELECT price FROM gb_database WHERE store={}".format(value)).fetchall()
+        
+        products = [] # convert to list
+        for product in storeItems:
+            product = str(product)
+            product = product.replace("('", "")
+            product = product.replace("',)", "")
+            products.append(product)
+            
+        prices = [] # convert to list
+        for price in itemPrices:
+            price = str(price)
+            price = price[1:-2]
+            price = "$" + price
+            prices.append(price)
+        
+        resultList = []
+        counter=0
+        for x in products:
+            resultList.append(x)
+            resultList.append(prices[counter])
+            counter += 1 
+    
+        resultList2 = np.array(resultList).reshape(-1,2)
+        
+        table = MDDataTable(
+            use_pagination=True,
+            pos_hint = {'center_x': 0.5, 'center_y':0.5},
+            size_hint=(.9, .6),
+            column_data=[
+                ("Product Name", dp(70)),
+                ("Price", dp(30)),
+            ],
+            row_data=resultList2
+        )
+        self.add_widget(table)
     pass
 
 class ViewMyList(Screen):
@@ -420,6 +453,8 @@ class ViewMyList(Screen):
             self.ids.itemlistlabel.text = fobj.read()
  
     pass
+
+
 
 ######################
 #  BUILD KIVY FILE   #
