@@ -1,241 +1,144 @@
-from tkinter import Widget
-import kivy
-import pandas as pd
+#######################
+#                     # 
+#    GROCERY BUDDY    #
+#                     #
+#######################
 
+##############
+#  MODULES   #
+##############
+
+#  kivy modules for GUI
+import kivy
 from kivy.app import App
+from kivymd.app import MDApp
+from kivy.lang import Builder
+from kivy.lang.builder import Builder
+
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.uix.gridlayout import GridLayout
-from kivy.app import App
-from kivy.lang import Builder
+
+from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.scrollview import ScrollView
 from kivy.properties import StringProperty, ObjectProperty, NumericProperty
-from kivy.lang import Builder
-from kivymd.app import MDApp
 from kivymd.uix.datatables import MDDataTable
-from kivy.core.window import Window
-
-from kivy.lang.builder import Builder
-from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.metrics import dp
 
-from PIL import Image
-from pytesseract import pytesseract
+# panda module for data tables
+from tkinter import Widget
+import pandas as pd
+import numpy as np
 
+# SQL and Google Cloud to connect to database
+import sqlalchemy
+from sqlalchemy import insert
+from sqlalchemy import update
+from sqlalchemy.orm import relationship, sessionmaker
+from google.cloud.sql.connector import Connector
+
+# request and json modules for reading receipts
 import requests
-from bs4 import BeautifulSoup
-
-# store products
-wholefoods_products = {"Organic Honeycrisp Apple": "4.45", "Organic Large Hass Avocados": "5.00",
-                       "Large Hass Avocados": "4.00", "Organic Broccoli": "2.99", "Medium Hass Avocado": "0.99",
-                       "Honeycrisp Apples": "3.29", "Organic Blueberries Pint": "5.99",
-                       "Organic Green Asparagus": "4.39", "Organic Fuji Apples": "2.99", "Organic Raspberries": "7.99",
-                       "Organic Grade A Whole Milk, 1 gallon": "6.99", "Full Fat Oat Milk, 64 fl oz": "5.99",
-                       "Organic Large Brown Eggs, 24 oz": "5.79", "Large Eggs, 36 oz": "8.79"}
-walmart_products = {"Lightly Dried Organic Parsley": "0.35", "Organic Bananas": "1.42",
-                    "Organic Baby Peeled Carrots": "1.56", "Organic Grape Tomato": "2.66",
-                    "Organic Bagged Avocados": "4.98", "Fresh Organic Mini Cucumbers": "3.46",
-                    "Organic Baby Spinach": "2.98", "Organic Spring Mix": "4.98", "Envy Apples": "1.36",
-                    "Gala Apples": "0.84", "a2 Milk Whole Milk": "3.97",
-                    "Great Value Whole Vitamin D Milk, Gallon, 128 fl oz": "$4.37",
-                    "Deans TruMoo 1% Low Fat Chocolate Milk, Gallon, 128 fl oz": "5.37",
-                    "Great Value Large White Eggs, 12 Count": "2.82", "Great Value Large White Eggs, 18 Count": "4.12"}
+import json
 
 
-class MainWidget(Screen):
-    pass
+############################
+#  CLOUD DATABASE ACCESS   #
+############################
 
+# initialize parameters
+INSTANCE_CONNECTION_NAME = f"grocerybuddy-370504:us-central1:grocery-buddy"
+DB_USER = "GroceryBuddy"
+DB_PASS = "GroceryBuddyPass7"
+DB_NAME = "grocery_buddy_database"
 
-class SecondWindow(Screen):
-    pass
+# initialize Connector object
+connector = Connector()
 
+# function to return the database connection object
+def getconn():
+    conn = connector.connect(
+        INSTANCE_CONNECTION_NAME,
+        "pymysql",
+        user=DB_USER,
+        password=DB_PASS,
+        db=DB_NAME
+    )
+    return conn
+
+# create connection pool with 'creator' argument to connection object function
+pool = sqlalchemy.create_engine(
+    "mysql+pymysql://",
+    creator=getconn,
+)
+
+# initialize session
+Session = sessionmaker(bind=pool)
+session = Session()
+
+# connect to connection pool
+with pool.connect() as db_conn:
+    # database table layout: id = store[0], stores = database[1], products = database[2], prices = database[3]
+    database = db_conn.execute("SELECT * FROM gb_database").fetchall()
+    
+    # get stores from database
+    db_stores = db_conn.execute("SELECT store FROM gb_database").fetchall()
+    stores = [] # convert to list
+    for store in db_stores:
+        store = str(store)
+        store = store.replace("('", "")
+        store = store.replace("',)", "")
+        stores.append(store)
+    
+    stores = [*set(stores)]
+    
+    # get products from database
+    db_products = db_conn.execute("SELECT product FROM gb_database").fetchall()
+    products = [] # convert to list
+    for product in db_products:
+        product = str(product)
+        product = product.replace("('", "")
+        product = product.replace("',)", "")
+        products.append(product)
+        
+    # divide table into stores
+    wholefoods_products = db_conn.execute("SELECT * FROM gb_database WHERE store='whole_foods'").fetchall()
+    walmart_products = db_conn.execute("SELECT * FROM gb_database WHERE store='walmart'").fetchall()
+
+##############
+#  SCREENS   #
+##############
 
 class WindowManager(ScreenManager):
     pass
 
-
-class ThirdWindow(Screen):
+class MainWidget(Screen):
     pass
-
-
-class FourthWindow(Screen):
-    def pressSBP(self):
-        user_product = self.ids.userInputSBP.text  # product that user searches for
-
-        productInStore = ""  # products in stores that are similar to the one searched for
-        displayWFHeader = True
-        displayNPFWF = True  # if no products found in Whole Foods
-        displayWalHeader = True
-        displayNPFWal = True  # if no products found in Walmart
-
-        for product in wholefoods_products:  # Whole Foods Products
-            if (user_product.lower() in product.lower()):
-                displayNPFWF = False
-                if (displayWFHeader == True):
-                    productInStore += "Whole Foods Products: \n"
-                    displayWFHeader = False
-
-                productInStore += product + ", $" + wholefoods_products.get(product) + "\n"
-        productInStore += "\n"
-
-        for product in walmart_products:  # Walmart Products
-            if (user_product.lower() in product.lower()):
-                displayNPFWal = False
-                if (displayWalHeader == True):
-                    productInStore += "Walmart Products: \n"
-                    displayWalHeader = False
-
-                productInStore += product + ", $" + walmart_products.get(product) + "\n"
-        productInStore += "\n"
-
-        if (displayNPFWF == True and displayNPFWal == True):
-            productInStore = "No products found."
-
-        self.ids.itemSBP.text = productInStore
-
-    pass
-
-
-class FifthWindow(Screen):
-    pass
-
 
 class ScrollLabel(ScrollView):
     text = StringProperty("\n")
     pass
 
-
-class SixthWindow(Screen):
-    def pressWF(self):
-        # scroll view properties
-        pd.set_option('display.max_rows', None)
-        pd.set_option('display.max_columns', None)
-
-        # creating an empty pandas DataFrame to store all of the product data
-        wholefoodsDF = pd.DataFrame()
-
-        # creating column for the item names
-        wholefoodsDF["Items"] = []
-        global stockWF
-        stockWF = []
-
-        # go through each item and append to stock
-        for product in wholefoods_products:
-            stockWF.append(product)
-
-        # adding the stock to the dataframe
-        wholefoodsDF["Items"] = stockWF  # add items to dataframe
-        stockWF = "\n".join(stockWF)
-        # check if item in stock
-        user_product = self.ids.userInputWF.text
-
-        if user_product.lower() in stockWF.lower():
-            self.ids.productInWFStock.text = user_product + " are available at Whole Foods! The product is priced at $" + wholefoods_products.get(
-                user_product) + "."
-        else:
-            self.ids.productInWFStock.text = "Our records indicate that " + user_product + " are currently unavailable at Whole Foods."
-
+class OptionsWindow(Screen):
     pass
 
-
-class SeventhWindow(Screen):
-    def pressWal(self):
-        # scroll view properties
-        pd.set_option('display.max_rows', None)
-        pd.set_option('display.max_columns', None)
-
-        # creating an empty pandas DataFrame to store all of the product data
-        walmartDF = pd.DataFrame()
-
-        # creating column for the item names
-        walmartDF["Items"] = []
-        global stockWal
-        stockWal = []
-
-        # go through each item and append to stock
-        for product in walmart_products:
-            stockWal.append(product)
-
-        # adding the stock to the dataframe
-        walmartDF["Items"] = stockWal  # add items to dataframe
-        stockWal = "\n".join(stockWal)
-
-        # check if item in stock
-        user_product = self.ids.userInputWal.text
-
-        if user_product.lower() in stockWal.lower():
-            self.ids.productInWalStock.text = user_product + " are available at Walmart! The product is priced at $" + walmart_products.get(
-                user_product) + "."
-        else:
-            self.ids.productInWalStock.text = "Our records indicate that " + user_product + " are currently unavailable at Walmart."
-
+class MyListWindow(Screen):
     pass
 
+class ViewMyList(Screen):
+# view items in grocery list
+    def updateMyList(self):
+        with open("itemname.txt", "r") as fobj:
+            self.ids.itemlistlabel.text = fobj.read()
 
-class EighthWindow(Screen):
-    def add_datatable(self):
-        resultList = list(walmart_products.items())
-        table = MDDataTable(
-            use_pagination=True,
-            size_hint=(1, .5),
-            column_data=[
-                ("Product Name", dp(70)),
-                ("Price", dp(70)),
-            ],
-            row_data=resultList
-        )
-        self.add_widget(table)
-
+    def clearMyList(self):
+        open("itemname.txt", "w").close()
     pass
 
-
-class NinthWindow(Screen):
-    def add_datatable(self):
-        resultList = list(wholefoods_products.items())
-        table = MDDataTable(
-            use_pagination=True,
-            size_hint=(1, .5),
-            column_data=[
-                ("Product Name", dp(70)),
-                ("Price", dp(70)),
-            ],
-            row_data=resultList
-        )
-        self.add_widget(table)
-
-    pass
-
-
-class TenthWindow(Screen):
-    filePath = StringProperty('')
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        Window.bind(on_dropfile=self._on_file_drop)
-
-
-    def reduced_image(self): # fit on screen
-        print(self.filePath)
-
-    def _on_file_drop(self, window, file_path): # drag & drop
-        print(file_path)
-        self.filePath = file_path.decode("utf-8") # read file path
-        self.ids.receipt.source = self.filePath
-        self.ids.receipt.reload() # reload screen with image
-    pass
-
-
-class EleventhWindow(Screen):
-    def pressReceipt(self):
-        filePath = self.manager.get_screen("AddReceipt").ids.receipt.source # get file path from TenthWindow
-        img = Image.open(filePath)
-        self.ids.checkReceiptInput.text = str(pytesseract.image_to_string(img)) # convert image to text
-
-    pass
-
-class TwelfthWindow(Screen):
+class EditListWindow(Screen):
+# add item to grocery list
     itemname_text_input = ObjectProperty()
     ego = NumericProperty(0)
     itemname = StringProperty('')
@@ -249,26 +152,240 @@ class TwelfthWindow(Screen):
     def save(self):
         with open("itemname.txt", "a") as fobj:
             fobj.write(str("\n"+self.itemname))
-
     pass
 
-class ViewMyList(Screen):
-    def updateMyList(self):
-        with open("itemname.txt", "r") as fobj:
-            self.ids.itemlistlabel.text = fobj.read()
+class SBPWindow(Screen):
+# search for product in all stores
+    def pressSBP(self):
+        user_product = self.ids.userInputSBP.text  # product that user searches for
 
-    def clearMyList(self):
-        open("itemname.txt", "w").close()
+        productInStore = ""  # products in stores that are similar to the one searched for
+        displayWFHeader = True
+        displayNPFWF = True  # if no products found in Whole Foods
+        displayWalHeader = True
+        displayNPFWal = True  # if no products found in Walmart
+
+        for product in wholefoods_products:  # Whole Foods Products
+            store_product = str(product[2])
+            if (user_product.lower() in store_product.lower()):
+                displayNPFWF = False
+                if (displayWFHeader == True):
+                    productInStore += "Whole Foods Products: \n"
+                    displayWFHeader = False
+                product_price = str(product[3])
+                productInStore += store_product + ", $" + product_price + "\n"
+        productInStore += "\n"
+
+        for product in walmart_products:  # Walmart Products
+            store_product = str(product[2])
+            if (user_product.lower() in store_product.lower()):
+                displayNPFWal = False
+                if (displayWalHeader == True):
+                    productInStore += "Walmart Products: \n"
+                    displayWalHeader = False
+                product_price = str(product[3])
+                productInStore += store_product + ", $" + product_price + "\n"
+        productInStore += "\n"
+
+        if (displayNPFWF == True and displayNPFWal == True):
+            productInStore = "No products found."
+
+        self.ids.itemSBP.text = productInStore
     pass
+
+class SBSWindow(Screen):
+# browse through products by store
+    def getStores(self):
+        return stores
+    
+    def spinner_clicked(self, value):
+        value = "'"+value+"'"
+        with pool.connect() as db_conn:
+            storeItems = db_conn.execute("SELECT product FROM gb_database WHERE store={}".format(value)).fetchall()
+            itemPrices = db_conn.execute("SELECT price FROM gb_database WHERE store={}".format(value)).fetchall()
+        
+        products = [] # convert to list
+        for product in storeItems:
+            product = str(product)
+            product = product.replace("('", "")
+            product = product.replace("',)", "")
+            products.append(product)
+            
+        prices = [] # convert to list
+        for price in itemPrices:
+            price = str(price)
+            price = price[1:-2]
+            price = "$" + price
+            prices.append(price)
+        
+        resultList = []
+        counter=0
+        for x in products:
+            resultList.append(x)
+            resultList.append(prices[counter])
+            counter += 1 
+    
+        resultList2 = np.array(resultList).reshape(-1,2)
+        
+        table = MDDataTable(
+            use_pagination=True,
+            pos_hint = {'center_x': 0.5, 'center_y':0.5},
+            size_hint=(.9, .6),
+            column_data=[
+                ("Product Name", dp(70)),
+                ("Price", dp(30)),
+            ],
+            row_data=resultList2
+        )
+        self.add_widget(table)
+    pass
+
+class AddReceiptWindow(Screen):
+# drag & drop receipt
+    filePath = StringProperty('')
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        Window.bind(on_dropfile=self._on_file_drop)
+
+    def reduced_image(self): # fit on screen
+        print(self.filePath)
+
+    def _on_file_drop(self, window, file_path): # drag & drop
+        print(file_path)
+        self.filePath = file_path.decode("utf-8") # read file path
+        self.ids.receipt.source = self.filePath
+        self.ids.receipt.reload() # reload screen with image
+    pass
+
+class CheckReceiptWindow(Screen):
+# read data from receipt
+    def pressReceipt(self): # "Check Results" button - reads and prints receipt
+ 
+        # use API to read data from receipt
+        # receiptOcrEndpoint = 'https://ocr.asprise.com/api/v1/receipt' # Receipt OCR API endpoint
+        # imageFile = self.manager.get_screen("AddReceipt").ids.receipt.source # get file path from TenthWindow
+
+        # # access API and get receipt results as JSON file
+        # receiptData = requests.post(receiptOcrEndpoint, data = {
+        #     'api_key': 'TEST',          # Use 'TEST' for testing purpose
+        #     'recognizer': 'US',         # can be 'US', 'CA', 'JP', 'SG' or 'auto'
+        #     'ref_no': 'ocr_python_123', # optional caller provided ref code
+        #  },
+        # files = {"file": open(imageFile, "rb")})
+
+        # # returns JSON object as a dictionary
+        # receiptDic = json.loads(receiptData.text, strict=False)
+
+        # use in place of API for demo purposes to limit API requests
+        filePath = "/Users/hassanchaudhry/Desktop/receipt.text" # replace with path to receipt.text
+        receiptData = open(filePath, "r")
+        receiptDic = json.loads(receiptData.read(), strict=False)
+
+        # iterate through receipt and print: store name, store address, products, prices
+        printReceipt = ""
+        for receipt in receiptDic['receipts']:
+                store_name = "" + str(receipt['merchant_name']) + " at " + str(receipt['merchant_address'])
+                printReceipt += "Store: " + store_name + "\n \n"
+                for item in receipt['items']:
+                        store_product = str(item['description'])
+                        store_price = str(item['amount'])
+                        printReceipt += store_product + ",  $" + store_price + "\n"
+
+        self.ids.checkReceiptInput.text = printReceipt # print receipt
+
+    def submitReceipt(self): # "Submit" button - uploads receipt info to database
+        # connect to connection pool
+        with pool.connect() as db_conn:
+
+            # get table object
+            metaData = sqlalchemy.MetaData()
+            gb_database = sqlalchemy.Table('gb_database', metaData, autoload=True, autoload_with=pool)
+
+            # get info from printReceipt
+            receiptPrinted = self.manager.get_screen("CheckReceipt").ids.checkReceiptInput.text # get file path from TenthWindow
+
+            receiptLines = receiptPrinted.split("\n") # split receipt info into lines
+            store_name = receiptLines[0] # first line of receipt info is store name 
+            store_name = store_name.replace("Store: ", "") # remove substring to get store name only
+
+            for i in range(2, len(receiptLines)-1): # iterate trhough lines of products in receipt info
+                if (receiptLines[i]): # account for change in size of list by user
+                    receiptLine = receiptLines[i].split(",") # for each line, split into product and price
+                    store_product = receiptLine[0] # first part is product name
+                    store_price = receiptLine[1] # second part is product price
+                    store_price = store_price.replace(" $", "") # remove substirng to get only product price
+                    store_price = store_price.strip() # remove white spaces in product price
+            
+                # update database if necessary
+                if store_name in stores: # if store in database
+                    if store_product in products: # if product in database
+                        
+                        # get price of product 
+                        temp = session.query(gb_database).filter_by(product=store_product).first()
+                        curr_price = temp.price
+                        curr_price = str(curr_price)
+
+                        if store_price != curr_price: # if price is different than one in database
+                            # update price
+                            query = sqlalchemy.update(gb_database).where(gb_database.columns.store==store_name, gb_database.columns.product==store_product).values(price=store_price)
+                            db_conn.execute(query)
+                            session.commit()
+                            # update "sales" page
+                            self.manager.get_screen("Sales").ids.salesText.text += store_name + ": \n" + store_product + " changed in price from " + curr_price + " to " + store_price + "\n"
+                    else: # if product not in database
+                        # add product and price to database
+                        query = sqlalchemy.insert(gb_database).values(store=store_name, product=store_product, price=store_price)
+                        db_conn.execute(query)
+                        session.commit()
+                else: # if store and/or product not in database
+                    # add store, product, and price to database
+                    query = sqlalchemy.insert(gb_database).values(store=store_name, product=store_product, price=store_price)
+                    db_conn.execute(query)
+                    session.commit()
+
+        # reset receupt input
+        self.ids.checkReceiptInput.text = ""
+
+        # update lists
+        App.get_running_app().update()
+    pass
+
+class SalesWindow(Screen):
+# show sales and general price changes
+    def clearSales(self): # clear list of price changes when user chooses to do so
+        self.ids.salesText.text = ""
+    pass
+
+####################################
+#  BUILD KIVY FILE  & RUN PROGRAM  #
+####################################
 
 kv = Builder.load_file("my.kv")
 
-
 class MyMainApp(MDApp):
-    def build(self):
+    def build(self): # build kivy 
         return kv
+    def update(self): # update lists after database has been updated
+        # connect to connection pool
+        with pool.connect() as db_conn:
+            # get stores from database
+            db_stores = db_conn.execute("SELECT store FROM gb_database").fetchall()
+            stores = [] # convert to list
+            for store in db_stores:
+                store = str(store)
+                store = store.replace("('", "")
+                store = store.replace("',)", "")
+                stores.append(store)
 
+            # get products from database
+            db_products = db_conn.execute("SELECT product FROM gb_database").fetchall()
+            products = [] # convert to list
+            for product in db_products:
+                product = str(product)
+                product = product.replace("('", "")
+                product = product.replace("',)", "")
+                products.append(product)
 
-
-if __name__ == "__main__":
+if __name__ == "__main__": 
     MyMainApp().run()

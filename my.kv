@@ -1,18 +1,18 @@
 #:kivy 2.1.0
 WindowManager:
     MainWidget:
-    SecondWindow:
-    ThirdWindow:
-    FourthWindow:
-    FifthWindow:
-    SixthWindow:
-    SeventhWindow:
-    EighthWindow:
-    NinthWindow:
-    TenthWindow:
-    EleventhWindow:
-    TwelfthWindow:
-    ViewMyList:
+    OptionsWindow:
+
+    MyListWindow:
+    ViewMyList
+    EditListWindow:
+    
+    SBPWindow:
+    SBSWindow:
+
+    AddReceiptWindow:
+    CheckReceiptWindow:   
+    SalesWindow:
 
 <MainWidget>:
     name: "main"
@@ -32,11 +32,12 @@ WindowManager:
             on_release:
                 app.root.current = "options"
                 root.manager.transition.direction = "left"
-<SecondWindow>
+
+<OptionsWindow>
     name: "options"
     GridLayout:
         cols: 1
-        rows: 8
+        rows: 7
         Label:
             id: optionsHeader
             text: 'What would you like to do?'
@@ -62,7 +63,7 @@ WindowManager:
             text: 'Shop by Store'
             background_color: "white"
             on_release:
-                app.root.current = "ShopByStore"
+                app.root.current = "ShopByStore2"
                 root.manager.transition.direction = "left"
         Button:
             id: AddReceipt
@@ -76,19 +77,15 @@ WindowManager:
             text: 'Sales'
             background_color: "white"
             on_release:
-                app.root.current = "options"
+                app.root.current = "Sales"
                 root.manager.transition.direction = "left"
-        Button:
-            text: "Settings"
-            on_release:
-                app.root.current = "main"
-                root.manager.transition.direction = "right"
         Button:
             text: "Go Back"
             on_release:
                 app.root.current = "main"
                 root.manager.transition.direction = "right"
-<ThirdWindow>
+
+<MyListWindow>
     name: "MyList"
     GridLayout:
         cols: 1
@@ -113,7 +110,61 @@ WindowManager:
                 app.root.current = "options"
                 root.manager.transition.direction = "right"
 
-<FourthWindow>
+<ViewMyList>
+    name: "ViewMyList"
+    GridLayout:
+        cols: 1
+        rows: 5
+        Label:
+            height: 50
+            width: 500
+            text: "My List:"
+            color: "blue"
+        Label:
+            id: itemlistlabel
+            height: 400
+            width: 500
+            text: ""
+            color: "blue"
+        Button:
+            text: "Show Updated List"
+            on_press: root.updateMyList()
+        Button:
+            text: "Clear my List"
+            on_press: root.clearMyList()
+        Button:
+            text: "Go Back"
+            on_release:
+                app.root.current = "MyList"
+                root.manager.transition.direction = "right"
+
+<EditListWindow>
+    name: "EditMyList"
+    itemname_text_input: item_name
+    GridLayout:
+        cols: 1
+        rows: 4
+        Label:
+            text: "Add an Item:"
+            color: "blue"
+            pos: 655,400
+            size: 100, 30
+        TextInput:
+            id: item_name
+            pos: 760,400
+            size: 100, 30
+        Button:
+            text: "Save Name"
+            pos: 870,400
+            size: 100, 30
+            on_release: root.submit_itemname()
+        Button:
+            text: "Go Back"
+            on_release:
+                app.root.current = "MyList"
+                root.manager.transition.direction = "right"
+
+<SBPWindow>
     name: "ShopByProduct"
     GridLayout:
         cols: 1
@@ -152,29 +203,27 @@ WindowManager:
                 app.root.current = "options"
                 root.manager.transition.direction = "right"
 
-
-<FifthWindow>
-    name: "ShopByStore"
-    GridLayout:
-        cols: 1
-        rows: 3
+<SBSWindow>
+    name: "ShopByStore2"
+    BoxLayout:
+        orientation: "vertical"
+        size: root.width, root.height
         Button:
-            text: "Whole Foods"
-            on_release:
-                app.root.current = "WholeFoods"
-                root.manager.transition.direction = "left"
-        Button:
-            text: "Walmart"
-            on_release:
-                app.root.current = "Walmart"
-                root.manager.transition.direction = "left"
-        Button:
+            id: go_back
             text: "Go Back"
+            font_size: 32
+            size_hint: (1,1)
             on_release:
                 app.root.current = "options"
                 root.manager.transition.direction = "right"
+        Spinner:
+            id:spinner_id
+            text: "Choose a Store"
+            values: root.getStores()
+            size_hint: (1,1)
+            on_text: root.spinner_clicked(self.text)
 
-<TenthWindow>
+<AddReceiptWindow>
     name: "AddReceipt"
     GridLayout:
         cols: 1
@@ -203,7 +252,7 @@ WindowManager:
                 app.root.current = "CheckReceipt"
                 root.manager.transition.direction = "right"
 
-<EleventhWindow>
+<CheckReceiptWindow>
     name: "CheckReceipt"
     GridLayout:
         cols: 1
@@ -240,185 +289,44 @@ WindowManager:
             size_hint_y: None
             size_hint_x: 1
             on_release:
+                on_press: root.submitReceipt()
                 app.root.current = "options"
                 root.manager.transition.direction = "right"
 
-<SixthWindow>
-    name: "WholeFoods"
-    GridLayout:
-        cols: 1
-        rows: 5
-        TextInput:
-            height: 200
-            width: 500
-            size_hint_y: None
-            size_hint_x: 1
-            multiline: False
-            id: userInputWF
-            text: "Enter item: "
-            on_text_validate: app.on_side_change(self)
-        Button:
-            text: "Submit"
-            on_press: root.pressWF()
-            height: 100
-            width: 500
-            size_hint_y: None
-            size_hint_x: 1
-        Label:
-            id: productInWFStock
-            text: " "
-            color: "blue"
-            height: 700
-            width: 500
-            size_hint_y: None
-            size_hint_x: 1
-        Button:
-            text: "See List"
-            height: 100
-            width: 500
-            size_hint_y: None
-            size_hint_x: 1
-            on_release:
-                app.root.current = "WFList"
-                root.manager.transition.direction = "left"
-        Button:
-            height: 100
-            width: 500
-            size_hint_y: None
-            size_hint_x: 1
-            text: "Go Back"
-            on_release:
-                app.root.current = "ShopByStore"
-                root.manager.transition.direction = "right"
-
-<SeventhWindow>
-    name: "Walmart"
-    GridLayout:
-        cols: 1
-        rows: 5
-        TextInput:
-            height: 200
-            width: 500
-            size_hint_y: None
-            size_hint_x: 1
-            multiline: False
-            id: userInputWal
-            text: "Enter item: "
-            on_text_validate: app.on_side_change(self)
-        Button:
-            text: "Submit"
-            on_press: root.pressWal()
-            height: 100
-            width: 500
-            size_hint_y: None
-            size_hint_x: 1
-        Label:
-            id: productInWalStock
-            text: " "
-            color: "blue"
-            height: 700
-            width: 500
-            size_hint_y: None
-            size_hint_x: 1
-        Button:
-            text: "See List"
-            height: 100
-            width: 500
-            size_hint_y: None
-            size_hint_x: 1
-            on_release:
-                app.root.current = "WalmartList"
-                root.manager.transition.direction = "left"
-        Button:
-            text: "Go Back"
-            height: 100
-            width: 500
-            size_hint_y: None
-            size_hint_x: 1
-            on_release:
-                app.root.current = "ShopByStore"
-                root.manager.transition.direction = "right"
-
-<EighthWindow>
-    name: "WalmartList"
-    GridLayout:
-        cols: 1
-        rows: 2
-        Button:
-            text: "Go Back"
-            size_hint_y: 1
-            size_hint_x: 1
-            on_release:
-                app.root.current = "Walmart"
-                root.manager.transition.direction = "right"
-        Button:
-            text: "List"
-            on_press: root.add_datatable()
-
-<NinthWindow>
-    name: "WFList"
-    GridLayout:
-        cols: 1
-        rows: 2
-        Button:
-            text: "Go Back"
-            size_hint_y: 1
-            size_hint_x: 1
-            on_release:
-                app.root.current = "WholeFoods"
-                root.manager.transition.direction = "right"
-        Button:
-            text: "List"
-            on_press: root.add_datatable()
-<TwelfthWindow>
-    name: "EditMyList"
-    itemname_text_input: item_name
+<SalesWindow>
+    name: "Sales"
     GridLayout:
         cols: 1
         rows: 4
         Label:
-            text: "Add an Item:"
+            text: "Check out the latest updates on deals!"
             color: "blue"
-            pos: 655,400
-            size: 100, 30
+            height: 200
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
         TextInput:
-            id: item_name
-            pos: 760,400
-            size: 100, 30
-        Button:
-            text: "Save Name"
-            pos: 870,400
-            size: 100, 30
-            on_release: root.submit_itemname()
-        Button:
-            text: "Go Back"
-            on_release:
-                app.root.current = "MyList"
-                root.manager.transition.direction = "right"
-<ViewMyList>
-    name: "ViewMyList"
-    GridLayout:
-        cols: 1
-        rows: 5
-        Label:
-            height: 50
+            height: 800
             width: 500
-            text: "My List:"
-            color: "blue"
-        Label:
-            id: itemlistlabel
-            height: 400
-            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+            id: salesText
             text: ""
-            color: "blue"
+            on_text_validate: app.on_side_change(self)
         Button:
-            text: "Show Updated List"
-            on_press: root.updateMyList()
-        Button:
-            text: "Clear my List"
-            on_press: root.clearMyList()
+            text: "Clear Sales Page"
+            height: 100
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+            on_press: 
+                root.clearSales()
         Button:
             text: "Go Back"
+            height: 100
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
             on_release:
-                app.root.current = "MyList"
+                app.root.current = "options"
                 root.manager.transition.direction = "right"
