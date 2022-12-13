@@ -12,6 +12,7 @@ WindowManager:
     TenthWindow:
     EleventhWindow:
     TwelfthWindow:
+    ThirteenthWindow
     ViewMyList:
     ShopByStore2:
 
@@ -37,7 +38,7 @@ WindowManager:
     name: "options"
     GridLayout:
         cols: 1
-        rows: 8
+        rows: 7
         Label:
             id: optionsHeader
             text: 'What would you like to do?'
@@ -77,13 +78,8 @@ WindowManager:
             text: 'Sales'
             background_color: "white"
             on_release:
-                app.root.current = "options"
+                app.root.current = "Sales"
                 root.manager.transition.direction = "left"
-        Button:
-            text: "Settings"
-            on_release:
-                app.root.current = "main"
-                root.manager.transition.direction = "right"
         Button:
             text: "Go Back"
             on_release:
@@ -397,6 +393,45 @@ WindowManager:
             on_release:
                 app.root.current = "MyList"
                 root.manager.transition.direction = "right"
+
+<ThirteenthWindow>
+    name: "Sales"
+    GridLayout:
+        cols: 1
+        rows: 4
+        Label:
+            text: "Check out the latest updates on deals!"
+            color: "blue"
+            height: 200
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+        TextInput:
+            height: 800
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+            id: salesText
+            text: ""
+            on_text_validate: app.on_side_change(self)
+        Button:
+            text: "Clear Sales Page"
+            height: 100
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+            on_press: 
+                root.clearSales()
+        Button:
+            text: "Go Back"
+            height: 100
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+            on_release:
+                app.root.current = "options"
+                root.manager.transition.direction = "right"
+
 <ViewMyList>
     name: "ViewMyList"
     GridLayout:
@@ -434,3 +469,4 @@ WindowManager:
             values: root.getStores()
             size_hint: (1,1)
             on_text: root.spinner_clicked(self.text)
+
