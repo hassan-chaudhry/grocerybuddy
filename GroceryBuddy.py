@@ -34,6 +34,7 @@ import numpy as np
 
 # SQL and Google Cloud to connect to database
 import sqlalchemy
+from sqlalchemy import select
 from sqlalchemy import insert
 from sqlalchemy import update
 from sqlalchemy.orm import relationship, sessionmaker
@@ -91,9 +92,18 @@ with pool.connect() as db_conn:
         store = store.replace("('", "")
         store = store.replace("',)", "")
         stores.append(store)
+
+    # get number of unique stores in database
+    unique_stores = []
+    store_count = 0
+    for store in stores:
+        if store not in unique_stores:
+            unique_stores.append(store)
+            store_count += 1
     
-    stores = [*set(stores)] # for data tables
-    
+    # for data tables
+    stores = [*set(stores)] 
+
     # get products from database
     db_products = db_conn.execute("SELECT product FROM gb_database").fetchall()
     products = [] # convert to list
@@ -152,33 +162,35 @@ class EditListWindow(Screen):
 class SBPWindow(Screen):
 # search for product in all stores
     def pressSBP(self): # "Submit" button - searches databse for user's product
+
+        # get table object
+        metaData = sqlalchemy.MetaData()
+        gb_database = sqlalchemy.Table('gb_database', metaData, autoload=True, autoload_with=pool)
+
         user_product = self.ids.userInputSBP.text  # product that user searches for
 
         resultProducts = ""  # products in stores that are similar to the one searched for by user
         noProductsFound = 1 # keeps track of whether or not products are found in database that are similar to the one searched for by user
-        
-        for prod in products:
-            if user_product.lower() in prod.lower(): # if product found
-                
-                with pool.connect() as db_conn:
 
-                    # get table object
-                    metaData = sqlalchemy.MetaData()
-                    gb_database = sqlalchemy.Table('gb_database', metaData, autoload=True, autoload_with=pool)
-                    
-                    # access database 
-                    temp = session.query(gb_database).filter_by(product=prod).first()
-                    
-                    # get store name
-                    store_name = temp.store
-                    store_name = str(store_name)
+        for prod in products: # iterate through all products
+            if user_product.lower() in prod.lower(): # if use product found           
+                    # acess database and get product info
+                    prods = session.query(gb_database).filter_by(product=prod).all()
+                    for prod in prods:
+                        # get product store
+                        store_name = prod.store
+                        store_name = str(store_name)
 
-                    # get product price
-                    prod_price = temp.price
-                    prod_price = str(prod_price)
+                        # get product name
+                        prod_name = prod.product
+                        prod_name = str(prod_name)
 
-                resultProducts += store_name + ": " + prod + ", $" + prod_price + "\n" # list store, product, and price
-                noProductsFound = 0
+                        # get product price
+                        prod_price = prod.price
+                        prod_price = str(prod_price)
+
+                        resultProducts += store_name + ": " + prod_name + ", $" + prod_price + "\n" # list store, product, and price
+                        noProductsFound = 0 #  set no products found to false
         
         if noProductsFound == 1: # if no products found 
             resultProducts = "No products found."
@@ -187,7 +199,7 @@ class SBPWindow(Screen):
     pass
 
     def backSBP(self): # "Go Back" button - clears current screen's text fields and goes back to "Options" screen
-        self.ids.userInputSBP.text = ""
+        self.ids.userInputSBP.text = "Enter item: "
         self.ids.itemSBP.text = ""
 
 class SBSWindow(Screen):
@@ -306,8 +318,8 @@ class CheckReceiptWindow(Screen):
             store_name = receiptLines[0] # first line of receipt info is store name 
             store_name = store_name.replace("Store: ", "") # remove substring to get store name only
 
-            for i in range(2, len(receiptLines)-1): # iterate trhough lines of products in receipt info
-                if (receiptLines[i]): # account for change in size of list by user
+            for i in range(2, len(receiptLines)-1): # iterate through lines of products in receipt info
+                if (receiptLines[i]): # account for changes (in size of list) by user
                     receiptLine = receiptLines[i].split(",") # for each line, split into product and price
                     store_product = receiptLine[0] # first part is product name
                     store_price = receiptLine[1] # second part is product price
@@ -335,17 +347,18 @@ class CheckReceiptWindow(Screen):
                         query = sqlalchemy.insert(gb_database).values(store=store_name, product=store_product, price=store_price)
                         db_conn.execute(query)
                         session.commit()
+                        stores.append(store)
+                        products.append(product)
                 else: # if store and/or product not in database
                     # add store, product, and price to database
                     query = sqlalchemy.insert(gb_database).values(store=store_name, product=store_product, price=store_price)
                     db_conn.execute(query)
                     session.commit()
+                    stores.append(store)
+                    products.append(product)
 
         # reset receupt input
         self.ids.checkReceiptInput.text = ""
-
-        # update lists
-        App.get_running_app().update()
     pass
 
 class SalesWindow(Screen):
@@ -363,26 +376,6 @@ kv = Builder.load_file("my.kv")
 class MyMainApp(MDApp):
     def build(self): # build kivy 
         return kv
-    def update(self): # update lists after database has been updated
-        # connect to connection pool
-        with pool.connect() as db_conn:
-            # get stores from database
-            db_stores = db_conn.execute("SELECT store FROM gb_database").fetchall()
-            stores = [] # convert to list
-            for store in db_stores:
-                store = str(store)
-                store = store.replace("('", "")
-                store = store.replace("',)", "")
-                stores.append(store)
-
-            # get products from database
-            db_products = db_conn.execute("SELECT product FROM gb_database").fetchall()
-            products = [] # convert to list
-            for product in db_products:
-                product = str(product)
-                product = product.replace("('", "")
-                product = product.replace("',)", "")
-                products.append(product)
 
 if __name__ == "__main__": 
     MyMainApp().run()
