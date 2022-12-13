@@ -1,0 +1,242 @@
+{
+  "ocr_type" : "receipts",
+  "request_id" : "P_24.188.1.225_lbb8mvkq_umn",
+  "ref_no" : "ocr_python_123",
+  "file_name" : "receipt2.jpg",
+  "request_received_on" : 1670271683936,
+  "success" : true,
+  "image_width" : 2150,
+  "image_height" : 3615,
+  "image_rotation" : -0.029,
+  "recognition_completed_on" : 1670271686027,
+  "receipts" : [ {
+    "merchant_name" : "7th Ave Donuts & Diner",
+    "merchant_address" : "324 7th Ave, Brooklyn, NY 11215, USA",
+    "merchant_phone" : "+1 718-768-3410",
+    "merchant_website" : null,
+    "merchant_tax_reg_no" : null,
+    "merchant_company_reg_no" : null,
+    "region" : null,
+    "mall" : null,
+    "country" : "US",
+    "state" : "NY",
+    "city" : "Brooklyn",
+    "zip" : "11215",
+    "receipt_no" : "718-768-3410",
+    "date" : "2022-11-22",
+    "time" : "23:24",
+    "items" : [ {
+      "amount" : 10.50,
+      "category" : null,
+      "description" : "Roast Turkey Panini",
+      "flags" : "",
+      "qty" : null,
+      "remarks" : null,
+      "tags" : null,
+      "unitPrice" : null
+    }, {
+      "amount" : 10.50,
+      "category" : null,
+      "description" : "Corned Beef Panini",
+      "flags" : "",
+      "qty" : null,
+      "remarks" : null,
+      "tags" : null,
+      "unitPrice" : null
+    }, {
+      "amount" : 11.75,
+      "category" : null,
+      "description" : "Munchie Fries",
+      "flags" : "",
+      "qty" : null,
+      "remarks" : null,
+      "tags" : null,
+      "unitPrice" : null
+    }, {
+      "amount" : 10.00,
+      "category" : null,
+      "description" : "Texas Burger",
+      "flags" : "",
+      "qty" : null,
+      "remarks" : null,
+      "tags" : null,
+      "unitPrice" : null
+    }, {
+      "amount" : 0.75,
+      "category" : null,
+      "description" : "American Cheese",
+      "flags" : "",
+      "qty" : null,
+      "remarks" : null,
+      "tags" : null,
+      "unitPrice" : null
+    }, {
+      "amount" : 1.00,
+      "category" : null,
+      "description" : "Tomato",
+      "flags" : "",
+      "qty" : null,
+      "remarks" : null,
+      "tags" : null,
+      "unitPrice" : null
+    }, {
+      "amount" : 14.00,
+      "category" : null,
+      "description" : "Midnight Sampler",
+      "flags" : "",
+      "qty" : null,
+      "remarks" : null,
+      "tags" : null,
+      "unitPrice" : null
+    }, {
+      "amount" : 2.75,
+      "category" : null,
+      "description" : "Snapple",
+      "flags" : "",
+      "qty" : null,
+      "remarks" : null,
+      "tags" : null,
+      "unitPrice" : null
+    }, {
+      "amount" : 3.50,
+      "category" : null,
+      "description" : "Iced Coffee",
+      "flags" : "",
+      "qty" : null,
+      "remarks" : null,
+      "tags" : null,
+      "unitPrice" : null
+    }, {
+      "amount" : 10.00,
+      "category" : null,
+      "description" : "Brooklyn Burger",
+      "flags" : "",
+      "qty" : null,
+      "remarks" : null,
+      "tags" : null,
+      "unitPrice" : null
+    }, {
+      "amount" : 0.75,
+      "category" : null,
+      "description" : "American Cheese",
+      "flags" : "",
+      "qty" : null,
+      "remarks" : null,
+      "tags" : null,
+      "unitPrice" : null
+    }, {
+      "amount" : 3.50,
+      "category" : null,
+      "description" : "Make it Deluxe",
+      "flags" : "",
+      "qty" : null,
+      "remarks" : null,
+      "tags" : null,
+      "unitPrice" : null
+    }, {
+      "amount" : 13.00,
+      "category" : null,
+      "description" : "Slice Cake",
+      "flags" : "",
+      "qty" : 2,
+      "remarks" : null,
+      "tags" : null,
+      "unitPrice" : null
+    } ],
+    "currency" : "USD",
+    "total" : 116.70,
+    "subtotal" : 100.14,
+    "tax" : 8.14,
+    "service_charge" : null,
+    "tip" : null,
+    "payment_method" : null,
+    "payment_details" : null,
+    "credit_card_type" : null,
+    "credit_card_number" : null,
+    "ocr_text" : "         355\n   7th Ave Donuts & Diner\n       324 7th Avenue\n     Brooklyn, NY 
+11215\n        718-768-3410\n Server: Kanayma K\n Check #355         Table 6\n Guest Count: 6\n 
+Ordered:\n          11/22/22 11:24 PM\n Roast Turkey Panini\n                     $10.50\n Corned Beef 
+Panini  $10.50\n Munchie Fries       $11.75\n Texas Burger        $10.00\n Medium Rare\n American Cheese      
+$0.75\n Lettuce\n Tomato               $1.00\n Midnight Sampler    $14.00\n Snapple              $2.75\n 
+Peach\n Iced Coffee          $3.50\n Brooklyn Burger     $10.00\n Medium\n American Cheese      $0.75\n 
+Make it Deluxe       $3.50\n 2 Slice Cake        $13.00\n Subtotal            $92.00\n Tax                  
+$8.14\n Total              $100.14\n          Suggested Tip:\n    18%:(Tip $16.56 Total $116.70)\n    
+20%:(Tip $18.40 Total $118.54)\n    25%:(Tip $23.00 Total $123.14)\n  Tip percentages are based on the 
+check\n        price before taxes.\n         Thank You!",
+    "ocr_confidence" : 98.70,
+    "width" : 1129,
+    "height" : 2961,
+    "avg_char_width" : 41.1132,
+    "avg_line_height" : 50.13,
+    "category" : "meal_delivery,bakery,restaurant,store,food",
+    "conf_amount" : 90,
+    "source_locations" : {
+      "date" : [ [ {
+        "y" : 1161,
+        "x" : 843
+      }, {
+        "y" : 1137,
+        "x" : 1640
+      }, {
+        "y" : 1208,
+        "x" : 1642
+      }, {
+        "y" : 1232,
+        "x" : 845
+      } ] ],
+      "total" : [ [ {
+        "y" : 2937,
+        "x" : 669
+      }, {
+        "y" : 2913,
+        "x" : 1557
+      }, {
+        "y" : 2971,
+        "x" : 1558
+      }, {
+        "y" : 2995,
+        "x" : 670
+      } ] ],
+      "receipt_no" : [ [ {
+        "y" : 793,
+        "x" : 775
+      }, {
+        "y" : 779,
+        "x" : 1333
+      }, {
+        "y" : 832,
+        "x" : 1334
+      }, {
+        "y" : 846,
+        "x" : 776
+      } ] ],
+      "doc" : [ [ {
+        "y" : 267,
+        "x" : 393
+      }, {
+        "y" : 230,
+        "x" : 1635
+      }, {
+        "y" : 3486,
+        "x" : 1730
+      }, {
+        "y" : 3523,
+        "x" : 488
+      } ] ],
+      "tax" : [ [ {
+        "y" : 2535,
+        "x" : 1415
+      }, {
+        "y" : 2529,
+        "x" : 1641
+      }, {
+        "y" : 2583,
+        "x" : 1642
+      }, {
+        "y" : 2588,
+        "x" : 1416
+      } ] ]
+    }
+  } ]
+}
+
