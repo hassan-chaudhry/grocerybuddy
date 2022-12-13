@@ -111,19 +111,47 @@ with pool.connect() as db_conn:
 #  SCREENS   #
 ##############
 
-class MainWidget(Screen):
-    pass
-
-class SecondWindow(Screen):
-    pass
-
 class WindowManager(ScreenManager):
     pass
 
-class ThirdWindow(Screen):
+class MainWidget(Screen):
     pass
 
-class FourthWindow(Screen):
+class ScrollLabel(ScrollView):
+    text = StringProperty("\n")
+    pass
+
+class OptionsWindow(Screen):
+    pass
+
+class MyListWindow(Screen):
+    pass
+
+class ViewMyList(Screen):
+# read item from gorcery list
+    def updateMyList(self):
+        with open("itemname.txt", "r") as fobj:
+            self.ids.itemlistlabel.text = fobj.read()
+    pass
+
+class EditListWindow(Screen):
+# add item to grocery list
+    itemname_text_input = ObjectProperty()
+    ego = NumericProperty(0)
+    itemname = StringProperty('')
+
+    def submit_itemname(self):
+        self.itemname = self.itemname_text_input.text
+        print("Item Added {}".format(self.itemname))
+        self.save()
+        self.itemname = ''
+
+    def save(self):
+        with open("itemname.txt", "w") as fobj:
+            fobj.write(str(self.itemname))
+    pass
+
+class SBPWindow(Screen):
 # search for product in all stores
     def pressSBP(self):
         user_product = self.ids.userInputSBP.text  # product that user searches for
@@ -160,146 +188,56 @@ class FourthWindow(Screen):
             productInStore = "No products found."
 
         self.ids.itemSBP.text = productInStore
-
     pass
 
-class FifthWindow(Screen):
-    pass
-
-class ScrollLabel(ScrollView):
-    text = StringProperty("\n")
-    pass
-
-class SixthWindow(Screen):
-# search whole foods for product
-    def pressWF(self):
-        # scroll view properties
-        pd.set_option('display.max_rows', None)
-        pd.set_option('display.max_columns', None)
-
-        # creating an empty pandas DataFrame to store all of the product data
-        wholefoodsDF = pd.DataFrame()
-
-        # creating column for the item names
-        wholefoodsDF["Items"] = []
-        global stockWF
-        stockWF = []
-
-        # go through each item and append to stock
-        for product in wholefoods_products:
-            stockWF.append(str(product))
-
-        # adding the stock to the dataframe
-        wholefoodsDF["Items"] = stockWF  # add items to dataframe
-        stockWF = "\n".join(stockWF)
+class SBSWindow(Screen):
+# browse through products by store
+    def getStores(self):
+        return stores
+    
+    def spinner_clicked(self, value):
+        value = "'"+value+"'"
+        with pool.connect() as db_conn:
+            storeItems = db_conn.execute("SELECT product FROM gb_database WHERE store={}".format(value)).fetchall()
+            itemPrices = db_conn.execute("SELECT price FROM gb_database WHERE store={}".format(value)).fetchall()
         
-        # check if item in stock
-        user_product = self.ids.userInputWF.text
-
-        # get info of product 
-        for product in wholefoods_products:  
-            store_name = str(product[1])
-            store_product = str(product[2])
-            store_price = str(product[3])
-            if store_product.lower() == user_product.lower():
-                break
-
-        if user_product.lower() in stockWF.lower():
-            self.ids.productInWFStock.text = user_product + " are available at " + store_name + "! The product is priced at $" + store_price + "."
-        else:
-            self.ids.productInWFStock.text = "Our records indicate that " + user_product + " are currently unavailable at " + store_name + "."
-
-    pass
-
-class SeventhWindow(Screen):
-# search for walmart for product 
-    def pressWal(self):
-        # scroll view properties
-        pd.set_option('display.max_rows', None)
-        pd.set_option('display.max_columns', None)
-
-        # creating an empty pandas DataFrame to store all of the product data
-        walmartDF = pd.DataFrame()
-
-        # creating column for the item names
-        walmartDF["Items"] = []
-        global stockWal
-        stockWal = []
-
-        # go through each item and append to stock
-        for product in walmart_products:
-            stockWal.append(str(product))
-
-        # adding the stock to the dataframe
-        walmartDF["Items"] = stockWal  # add items to dataframe
-        stockWal = "\n".join(stockWal)
-
-        # check if item in stock
-        user_product = self.ids.userInputWal.text
-
-        # get info of product 
-        for product in walmart_products:  
-            store_name = str(product[1])
-            store_product = str(product[2])
-            store_price = str(product[3])
-            if store_product.lower() == user_product.lower():
-                break
-
-        if user_product.lower() in stockWal.lower():
-            self.ids.productInWFStock.text = user_product + " are available at " + store_name + "! The product is priced at $" + store_price + "."
-        else:
-            self.ids.productInWFStock.text = "Our records indicate that " + user_product + " are currently unavailable at " + store_name + "."
-
-    pass
-
-class EighthWindow(Screen):
-# data table for walmart products
-    def add_datatable(self):
-        wal_products = [] # list of products at walmart
-        wal_prices = [] # list of product prices at walmart
-        for product in walmart_products:
-            wal_products.append(str(product[2]))
-            wal_prices.append(str(product[3]))
-
-        resultList = (wal_products)
+        products = [] # convert to list
+        for product in storeItems:
+            product = str(product)
+            product = product.replace("('", "")
+            product = product.replace("',)", "")
+            products.append(product)
+            
+        prices = [] # convert to list
+        for price in itemPrices:
+            price = str(price)
+            price = price[1:-2]
+            price = "$" + price
+            prices.append(price)
+        
+        resultList = []
+        counter=0
+        for x in products:
+            resultList.append(x)
+            resultList.append(prices[counter])
+            counter += 1 
+    
+        resultList2 = np.array(resultList).reshape(-1,2)
+        
         table = MDDataTable(
             use_pagination=True,
-            size_hint=(1, .5),
+            pos_hint = {'center_x': 0.5, 'center_y':0.5},
+            size_hint=(.9, .6),
             column_data=[
                 ("Product Name", dp(70)),
-                ("Price", dp(70)),
+                ("Price", dp(30)),
             ],
-            row_data=resultList
+            row_data=resultList2
         )
         self.add_widget(table)
-
     pass
 
-class NinthWindow(Screen):
-# data table for whole foods products
-    def add_datatable(self):
-        wf_products = [] # list of products at whole foods
-        wf_prices = [] # list of product prices at whole foods
-        for product in wholefoods_products:
-            wf_products.append(str(product[2]))
-            wf_prices.append(str(product[3]))
-
-        resultList = (wf_products)
-
-        table = MDDataTable(
-            use_pagination=True,
-            size_hint=(1, .5),
-            column_data=[
-                ("Product Name", dp(70)),
-                ("Price", dp(70)),
-            ],
-            row_data=resultList
-        )
-        self.add_widget(table)
-        
-    pass
-
-class TenthWindow(Screen):
+class AddReceiptWindow(Screen):
 # drag & drop receipt
     filePath = StringProperty('')
 
@@ -315,10 +253,9 @@ class TenthWindow(Screen):
         self.filePath = file_path.decode("utf-8") # read file path
         self.ids.receipt.source = self.filePath
         self.ids.receipt.reload() # reload screen with image
-
     pass
 
-class EleventhWindow(Screen):
+class CheckReceiptWindow(Screen):
 # read data from receipt
     def pressReceipt(self): # "Check Results" button - reads and prints receipt
  
@@ -411,93 +348,21 @@ class EleventhWindow(Screen):
         App.get_running_app().update()
     pass
 
-class TwelfthWindow(Screen):
-# add item to grocery list
-    itemname_text_input = ObjectProperty()
-    ego = NumericProperty(0)
-    itemname = StringProperty('')
-
-    def submit_itemname(self):
-        self.itemname = self.itemname_text_input.text
-        print("Item Added {}".format(self.itemname))
-        self.save()
-        self.itemname = ''
-
-    def save(self):
-        with open("itemname.txt", "w") as fobj:
-            fobj.write(str(self.itemname))
-
-    pass
-
-class ThirteenthWindow(Screen):
-    def clearSales(self):
+class SalesWindow(Screen):
+# show sales and general price changes
+    def clearSales(self): # clear list of price changes when user chooses to do so
         self.ids.salesText.text = ""
     pass
 
-class ShopByStore2(Screen):
-    def getStores(self):
-        return stores
-    
-    def spinner_clicked(self, value):
-        value = "'"+value+"'"
-        with pool.connect() as db_conn:
-            storeItems = db_conn.execute("SELECT product FROM gb_database WHERE store={}".format(value)).fetchall()
-            itemPrices = db_conn.execute("SELECT price FROM gb_database WHERE store={}".format(value)).fetchall()
-        
-        products = [] # convert to list
-        for product in storeItems:
-            product = str(product)
-            product = product.replace("('", "")
-            product = product.replace("',)", "")
-            products.append(product)
-            
-        prices = [] # convert to list
-        for price in itemPrices:
-            price = str(price)
-            price = price[1:-2]
-            price = "$" + price
-            prices.append(price)
-        
-        resultList = []
-        counter=0
-        for x in products:
-            resultList.append(x)
-            resultList.append(prices[counter])
-            counter += 1 
-    
-        resultList2 = np.array(resultList).reshape(-1,2)
-        
-        table = MDDataTable(
-            use_pagination=True,
-            pos_hint = {'center_x': 0.5, 'center_y':0.5},
-            size_hint=(.9, .6),
-            column_data=[
-                ("Product Name", dp(70)),
-                ("Price", dp(30)),
-            ],
-            row_data=resultList2
-        )
-        self.add_widget(table)
-    pass
 
-class ViewMyList(Screen):
-# read item from gorcery list
-    def updateMyList(self):
-        with open("itemname.txt", "r") as fobj:
-            self.ids.itemlistlabel.text = fobj.read()
- 
-    pass
-
-
-
-######################
-#  BUILD KIVY FILE   #
-######################
+####################################
+#  BUILD KIVY FILE  & RUN PROGRAM  #
+####################################
 
 kv = Builder.load_file("my.kv")
 
 class MyMainApp(MDApp):
-    def build(self):
+    def build(self): # build kivy 
         return kv
     def update(self): # update lists after database has been updated
         # connect to connection pool
@@ -520,5 +385,5 @@ class MyMainApp(MDApp):
                 product = product.replace("',)", "")
                 products.append(product)
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
     MyMainApp().run()
