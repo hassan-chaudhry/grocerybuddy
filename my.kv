@@ -114,14 +114,24 @@ WindowManager:
     name: "ViewMyList"
     GridLayout:
         cols: 1
-        rows: 3
+        rows: 5
+        Label:
+            height: 50
+            width: 500
+            text: "My List:"
+            color: "blue"
         Label:
             id: itemlistlabel
-            text: "x"
+            height: 400
+            width: 500
+            text: ""
             color: "blue"
         Button:
             text: "Show Updated List"
             on_press: root.updateMyList()
+        Button:
+            text: "Clear my List"
+            on_press: root.clearMyList()
         Button:
             text: "Go Back"
             on_release:
@@ -136,6 +146,7 @@ WindowManager:
         rows: 4
         Label:
             text: "Add an Item:"
+            color: "blue"
             pos: 655,400
             size: 100, 30
         TextInput:
@@ -319,4 +330,3 @@ WindowManager:
             on_release:
                 app.root.current = "options"
                 root.manager.transition.direction = "right"
-

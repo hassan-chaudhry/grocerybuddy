@@ -128,10 +128,13 @@ class MyListWindow(Screen):
     pass
 
 class ViewMyList(Screen):
-# read item from gorcery list
+# view items in grocery list
     def updateMyList(self):
         with open("itemname.txt", "r") as fobj:
             self.ids.itemlistlabel.text = fobj.read()
+
+    def clearMyList(self):
+        open("itemname.txt", "w").close()
     pass
 
 class EditListWindow(Screen):
@@ -147,8 +150,8 @@ class EditListWindow(Screen):
         self.itemname = ''
 
     def save(self):
-        with open("itemname.txt", "w") as fobj:
-            fobj.write(str(self.itemname))
+        with open("itemname.txt", "a") as fobj:
+            fobj.write(str("\n"+self.itemname))
     pass
 
 class SBPWindow(Screen):
@@ -245,10 +248,10 @@ class AddReceiptWindow(Screen):
         super().__init__(**kwargs)
         Window.bind(on_dropfile=self._on_file_drop)
 
-    def reduced_image(self): # fit on screen 
+    def reduced_image(self): # fit on screen
         print(self.filePath)
 
-    def _on_file_drop(self, window, file_path): # drag & drop 
+    def _on_file_drop(self, window, file_path): # drag & drop
         print(file_path)
         self.filePath = file_path.decode("utf-8") # read file path
         self.ids.receipt.source = self.filePath
@@ -353,7 +356,6 @@ class SalesWindow(Screen):
     def clearSales(self): # clear list of price changes when user chooses to do so
         self.ids.salesText.text = ""
     pass
-
 
 ####################################
 #  BUILD KIVY FILE  & RUN PROGRAM  #
