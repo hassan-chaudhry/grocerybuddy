@@ -116,21 +116,31 @@ WindowManager:
         cols: 1
         rows: 5
         Label:
-            height: 50
+            height: 100
             width: 500
-            text: "My List:"
+            text: "My Grocery List:"
             color: "blue"
         Label:
             id: itemlistlabel
-            height: 400
+            height: 800
             width: 500
+            size_hint_y: None
+            size_hint_x: 1
             text: ""
             color: "blue"
         Button:
             text: "Show Updated List"
+            height: 100
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
             on_press: root.updateMyList()
         Button:
-            text: "Clear my List"
+            text: "Clear My List"
+            height: 100
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
             on_press: root.clearMyList()
         Button:
             text: "Go Back"
@@ -145,7 +155,7 @@ WindowManager:
         cols: 1
         rows: 4
         Label:
-            text: "Add an Item:"
+            text: "Add an item to your grocery list:"
             color: "blue"
             pos: 655,400
             size: 100, 30
@@ -154,7 +164,7 @@ WindowManager:
             pos: 760,400
             size: 100, 30
         Button:
-            text: "Save Name"
+            text: "Save Item to Grocery List"
             pos: 870,400
             size: 100, 30
             on_release: root.submit_itemname()
