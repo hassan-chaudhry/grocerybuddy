@@ -106,6 +106,7 @@ with pool.connect() as db_conn:
     # divide table into stores
     wholefoods_products = db_conn.execute("SELECT * FROM gb_database WHERE store='whole_foods'").fetchall()
     walmart_products = db_conn.execute("SELECT * FROM gb_database WHERE store='walmart'").fetchall()
+
 ##############
 #  SCREENS   #
 ##############
@@ -319,27 +320,27 @@ class TenthWindow(Screen):
 
 class EleventhWindow(Screen):
 # read data from receipt
-    '''def pressReceipt(self): # "Check Results" button - reads and prints receipt
+    def pressReceipt(self): # "Check Results" button - reads and prints receipt
  
         # use API to read data from receipt
-        receiptOcrEndpoint = 'https://ocr.asprise.com/api/v1/receipt' # Receipt OCR API endpoint
-        imageFile = self.manager.get_screen("AddReceipt").ids.receipt.source # get file path from TenthWindow
+        # receiptOcrEndpoint = 'https://ocr.asprise.com/api/v1/receipt' # Receipt OCR API endpoint
+        # imageFile = self.manager.get_screen("AddReceipt").ids.receipt.source # get file path from TenthWindow
 
-        # access API and get receipt results as JSON file
-        receiptData = requests.post(receiptOcrEndpoint, data = {
-            'api_key': 'TEST',          # Use 'TEST' for testing purpose
-            'recognizer': 'US',         # can be 'US', 'CA', 'JP', 'SG' or 'auto'
-            'ref_no': 'ocr_python_123', # optional caller provided ref code
-         },
-        files = {"file": open(imageFile, "rb")})
+        # # access API and get receipt results as JSON file
+        # receiptData = requests.post(receiptOcrEndpoint, data = {
+        #     'api_key': 'TEST',          # Use 'TEST' for testing purpose
+        #     'recognizer': 'US',         # can be 'US', 'CA', 'JP', 'SG' or 'auto'
+        #     'ref_no': 'ocr_python_123', # optional caller provided ref code
+        #  },
+        # files = {"file": open(imageFile, "rb")})
 
-        # returns JSON object as a dictionary
-        receiptDic = json.loads(receiptData.text, strict=False)
+        # # returns JSON object as a dictionary
+        # receiptDic = json.loads(receiptData.text, strict=False)
 
         # use in place of API for demo purposes to limit API requests
-        #filePath = "/Users/hassanchaudhry/Desktop/receipt.text" # replace with path to receipt.text
-        #receiptData = open(filePath, "r")
-        #receiptDic = json.loads(receiptData.read(), strict=False)
+        filePath = "/Users/hassanchaudhry/Desktop/receipt.text" # replace with path to receipt.text
+        receiptData = open(filePath, "r")
+        receiptDic = json.loads(receiptData.read(), strict=False)
 
         # iterate through receipt and print: store name, store address, products, prices
         printReceipt = ""
@@ -352,7 +353,7 @@ class EleventhWindow(Screen):
                         printReceipt += store_product + ",  $" + store_price + "\n"
 
         self.ids.checkReceiptInput.text = printReceipt # print receipt
-  '''
+
     def submitReceipt(self): # "Submit" button - uploads receipt info to database
         # connect to connection pool
         with pool.connect() as db_conn:
@@ -383,23 +384,56 @@ class EleventhWindow(Screen):
                         # get price of product 
                         temp = session.query(gb_database).filter_by(product=store_product).first()
                         curr_price = temp.price
+                        curr_price = str(curr_price)
 
                         if store_price != curr_price: # if price is different than one in database
                             # update price
                             query = sqlalchemy.update(gb_database).where(gb_database.columns.store==store_name, gb_database.columns.product==store_product).values(price=store_price)
                             db_conn.execute(query)
+                            session.commit()
+                            # update "sales" page
+                            self.manager.get_screen("Sales").ids.salesText.text += store_name + ": \n" + store_product + " changed in price from " + curr_price + " to " + store_price + "\n"
                     else: # if product not in database
                         # add product and price to database
                         query = sqlalchemy.insert(gb_database).values(store=store_name, product=store_product, price=store_price)
                         db_conn.execute(query)
+                        session.commit()
                 else: # if store and/or product not in database
                     # add store, product, and price to database
                     query = sqlalchemy.insert(gb_database).values(store=store_name, product=store_product, price=store_price)
                     db_conn.execute(query)
+                    session.commit()
+
+        # reset receupt input
+        self.ids.checkReceiptInput.text = ""
+
+        # update lists
+        App.get_running_app().update()
+    pass
+
+class TwelfthWindow(Screen):
+# add item to grocery list
+    itemname_text_input = ObjectProperty()
+    ego = NumericProperty(0)
+    itemname = StringProperty('')
+
+    def submit_itemname(self):
+        self.itemname = self.itemname_text_input.text
+        print("Item Added {}".format(self.itemname))
+        self.save()
+        self.itemname = ''
+
+    def save(self):
+        with open("itemname.txt", "w") as fobj:
+            fobj.write(str(self.itemname))
 
     pass
-class TwelfthWindow(Screen):
+
+class ThirteenthWindow(Screen):
+    def clearSales(self):
+        self.ids.salesText.text = ""
     pass
+
 class ShopByStore2(Screen):
     def getStores(self):
         return stores
@@ -465,6 +499,26 @@ kv = Builder.load_file("my.kv")
 class MyMainApp(MDApp):
     def build(self):
         return kv
+    def update(self): # update lists after database has been updated
+        # connect to connection pool
+        with pool.connect() as db_conn:
+            # get stores from database
+            db_stores = db_conn.execute("SELECT store FROM gb_database").fetchall()
+            stores = [] # convert to list
+            for store in db_stores:
+                store = str(store)
+                store = store.replace("('", "")
+                store = store.replace("',)", "")
+                stores.append(store)
+
+            # get products from database
+            db_products = db_conn.execute("SELECT product FROM gb_database").fetchall()
+            products = [] # convert to list
+            for product in db_products:
+                product = str(product)
+                product = product.replace("('", "")
+                product = product.replace("',)", "")
+                products.append(product)
 
 if __name__ == "__main__":
     MyMainApp().run()
