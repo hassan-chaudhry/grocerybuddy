@@ -180,13 +180,13 @@ WindowManager:
         cols: 1
         rows: 4
         TextInput:
+            id: userInputSBP
+            text: "Enter item: "
             height: 200
             width: 500
             size_hint_y: 1
             size_hint_x: 1
             multiline: False
-            id: userInputSBP
-            text: "Enter item: "
             on_text_validate: app.on_side_change(self)
         Button:
             text: "Submit"
@@ -205,6 +205,7 @@ WindowManager:
             size_hint_x: 1
         Button:
             text: "Go Back"
+            on_press: root.backSBP()
             height: 100
             width: 500
             size_hint_y: None
@@ -237,7 +238,7 @@ WindowManager:
     name: "AddReceipt"
     GridLayout:
         cols: 1
-        rows: 3
+        rows: 4
         Label:
             id: addReceiptLabel
             text: "Drop a receipt below!"
@@ -254,12 +255,21 @@ WindowManager:
             size_hint_x: 1
         Button:
             text: "Submit"
-            height: 200
+            height: 100
             width: 500
             size_hint_y: None
             size_hint_x: 1
             on_release:
                 app.root.current = "CheckReceipt"
+                root.manager.transition.direction = "right"
+        Button:
+            text: "Go Back"
+            height: 100
+            width: 500
+            size_hint_y: None
+            size_hint_x: 1
+            on_release:
+                app.root.current = "options"
                 root.manager.transition.direction = "right"
 
 <CheckReceiptWindow>
@@ -316,15 +326,15 @@ WindowManager:
             size_hint_y: None
             size_hint_x: 1
         TextInput:
+            id: salesText
+            text: ""
             height: 800
             width: 500
             size_hint_y: None
             size_hint_x: 1
-            id: salesText
-            text: ""
             on_text_validate: app.on_side_change(self)
         Button:
-            text: "Clear Sales Page"
+            text: "Clear All Sales"
             height: 100
             width: 500
             size_hint_y: None

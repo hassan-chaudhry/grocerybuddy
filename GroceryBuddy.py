@@ -43,7 +43,6 @@ from google.cloud.sql.connector import Connector
 import requests
 import json
 
-
 ############################
 #  CLOUD DATABASE ACCESS   #
 ############################
@@ -80,6 +79,7 @@ session = Session()
 
 # connect to connection pool
 with pool.connect() as db_conn:
+
     # database table layout: id = store[0], stores = database[1], products = database[2], prices = database[3]
     database = db_conn.execute("SELECT * FROM gb_database").fetchall()
     
@@ -92,7 +92,7 @@ with pool.connect() as db_conn:
         store = store.replace("',)", "")
         stores.append(store)
     
-    stores = [*set(stores)]
+    stores = [*set(stores)] # for data tables
     
     # get products from database
     db_products = db_conn.execute("SELECT product FROM gb_database").fetchall()
@@ -102,23 +102,19 @@ with pool.connect() as db_conn:
         product = product.replace("('", "")
         product = product.replace("',)", "")
         products.append(product)
-        
-    # divide table into stores
-    wholefoods_products = db_conn.execute("SELECT * FROM gb_database WHERE store='whole_foods'").fetchall()
-    walmart_products = db_conn.execute("SELECT * FROM gb_database WHERE store='walmart'").fetchall()
 
 ##############
 #  SCREENS   #
 ##############
-
-class WindowManager(ScreenManager):
-    pass
 
 class MainWidget(Screen):
     pass
 
 class ScrollLabel(ScrollView):
     text = StringProperty("\n")
+    pass
+
+class WindowManager(ScreenManager):
     pass
 
 class OptionsWindow(Screen):
@@ -145,7 +141,6 @@ class EditListWindow(Screen):
 
     def submit_itemname(self):
         self.itemname = self.itemname_text_input.text
-        print("Item Added {}".format(self.itemname))
         self.save()
         self.itemname = ''
 
@@ -156,42 +151,44 @@ class EditListWindow(Screen):
 
 class SBPWindow(Screen):
 # search for product in all stores
-    def pressSBP(self):
+    def pressSBP(self): # "Submit" button - searches databse for user's product
         user_product = self.ids.userInputSBP.text  # product that user searches for
 
-        productInStore = ""  # products in stores that are similar to the one searched for
-        displayWFHeader = True
-        displayNPFWF = True  # if no products found in Whole Foods
-        displayWalHeader = True
-        displayNPFWal = True  # if no products found in Walmart
+        resultProducts = ""  # products in stores that are similar to the one searched for by user
+        noProductsFound = 1 # keeps track of whether or not products are found in database that are similar to the one searched for by user
+        
+        for prod in products:
+            if user_product.lower() in prod.lower(): # if product found
+                
+                with pool.connect() as db_conn:
 
-        for product in wholefoods_products:  # Whole Foods Products
-            store_product = str(product[2])
-            if (user_product.lower() in store_product.lower()):
-                displayNPFWF = False
-                if (displayWFHeader == True):
-                    productInStore += "Whole Foods Products: \n"
-                    displayWFHeader = False
-                product_price = str(product[3])
-                productInStore += store_product + ", $" + product_price + "\n"
-        productInStore += "\n"
+                    # get table object
+                    metaData = sqlalchemy.MetaData()
+                    gb_database = sqlalchemy.Table('gb_database', metaData, autoload=True, autoload_with=pool)
+                    
+                    # access database 
+                    temp = session.query(gb_database).filter_by(product=prod).first()
+                    
+                    # get store name
+                    store_name = temp.store
+                    store_name = str(store_name)
 
-        for product in walmart_products:  # Walmart Products
-            store_product = str(product[2])
-            if (user_product.lower() in store_product.lower()):
-                displayNPFWal = False
-                if (displayWalHeader == True):
-                    productInStore += "Walmart Products: \n"
-                    displayWalHeader = False
-                product_price = str(product[3])
-                productInStore += store_product + ", $" + product_price + "\n"
-        productInStore += "\n"
+                    # get product price
+                    prod_price = temp.price
+                    prod_price = str(prod_price)
 
-        if (displayNPFWF == True and displayNPFWal == True):
-            productInStore = "No products found."
+                resultProducts += store_name + ": " + prod + ", $" + prod_price + "\n" # list store, product, and price
+                noProductsFound = 0
+        
+        if noProductsFound == 1: # if no products found 
+            resultProducts = "No products found."
 
-        self.ids.itemSBP.text = productInStore
+        self.ids.itemSBP.text = resultProducts
     pass
+
+    def backSBP(self): # "Go Back" button - clears current screen's text fields and goes back to "Options" screen
+        self.ids.userInputSBP.text = ""
+        self.ids.itemSBP.text = ""
 
 class SBSWindow(Screen):
 # browse through products by store
@@ -292,7 +289,7 @@ class CheckReceiptWindow(Screen):
                         store_price = str(item['amount'])
                         printReceipt += store_product + ",  $" + store_price + "\n"
 
-        self.ids.checkReceiptInput.text = printReceipt # print receipt
+        self.ids.checkReceiptInput.text = printReceipt # print receipt to text field
 
     def submitReceipt(self): # "Submit" button - uploads receipt info to database
         # connect to connection pool
@@ -352,8 +349,8 @@ class CheckReceiptWindow(Screen):
     pass
 
 class SalesWindow(Screen):
-# show sales and general price changes
-    def clearSales(self): # clear list of price changes when user chooses to do so
+# show sales and general price changes of products
+    def clearSales(self): # ""Clear All Sales"" - clears all price changes on page
         self.ids.salesText.text = ""
     pass
 
