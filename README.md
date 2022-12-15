@@ -13,12 +13,12 @@ https://grocerybuddy.atlassian.net/wiki/spaces/GROCERYBUD/pages/229475/How-to+ar
 
 It is recommended that you create a virtual environment to run the program. This can be achieved by running the following commands:
 
-'''
+```
 virtualenv kivy_venv --python=python3.10.4
-'''
-'''
+```
+```
 source kivy_venv/bin/activate
-'''
+```
 Note that you should have python installed before you create a virtual environment (see "Installing Modules" for more).
 
 ### Installing Modules
@@ -38,17 +38,17 @@ Here is a list of all the necessary modules for the program:
 ### Getting Authorized 
 
 After installing "gcloud CLI," run the following command to log into an NYU email:
-'''
+```
 gcloud auth login
-'''
+```
 Only the developers of thr project and the TAs overlooking its development currently have access to the program.
 
 ### Running the Program
 
 To run the program, download "GroceryBuddy.py" and "my.kv" and place them in the same directory as the one you created your virtual environment in. Then, you can run the following to start the program:
-'''
+```
 python GroceryBuddy.py
-'''
+```
 ### Troubleshooting
 
 If you have any issues with the set up, please check out the "Running the Program" page on our Confluence wiki linked above. Also, please feel free to reach out to the developers for help!
