@@ -21,7 +21,7 @@ virtualenv kivy_venv --python=python3.10.4
 ```
 source kivy_venv/bin/activate
 ```
-Note that you should have python installed before you create a virtual environment (see "Installing Modules" for more).
+The first command creates a virtual environment while the second activates it. Note that you should have Python (any 3.10 version should work) installed before you create a virtual environment (see "Installing Modules" for more).
 
 ### Installing Modules
 
@@ -37,13 +37,15 @@ Here is a list of all the necessary modules for the program:
 - Install SQL Connector: pip install "cloud-sql-python-connector[pymysql]"
 - Install the gcloud CLI: https://cloud.google.com/sdk/docs/install
 
+For a more extensive list, check the "Running the Program" page on our Confluence wiki. But these should be the only ones you need.
+
 ### Getting Authorized 
 
 After installing "gcloud CLI," run the following command to log into an NYU email:
 ```
 gcloud auth login
 ```
-Only the developers of thr project and the TAs overlooking its development currently have access to the program.
+Only the developers of the project and the TAs overlooking its development currently have access to the program.
 
 ### Running the Program
 
