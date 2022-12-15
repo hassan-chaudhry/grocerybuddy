@@ -102,7 +102,7 @@ The file is then read and printed to the screen for the user to change. This is 
 
 ### Sales 
 
-The “Sales” page keeps track of any price changes for the user. If the user submits a receipt with a product (and store) that is already in the database but with a different price, that is considered a price change. The program prints the price change to the “Sales” page in the following format: ““. The user also has the option to “Clear All Sales” which makes sure they can delete the price change notifications after they see them.
+The “Sales” page keeps track of any price changes for the user. If the user submits a receipt with a product (and store) that is already in the database but with a different price, that is considered a price change. The program prints the price change to the “Sales” page. The user also has the option to “Clear All Sales” which makes sure they can delete the price change notifications after they see them.
 
 <img width="793" alt="Screenshot 2022-12-14 at 7 57 11 PM" src="https://user-images.githubusercontent.com/82198103/207749543-7954380f-4392-4821-b6fa-57fbd2e09c76.png">
 
